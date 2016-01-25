@@ -4,3 +4,35 @@
  * @file
  * Code for the govCMS CKAN module.
  */
+
+/**
+ * Base path to the configuration page.
+ */
+define('GOVCMS_CKAN_CONFIG_PATH', 'admin/config/services/govcms-ckan');
+
+/**
+ * Implements hook_menu().
+ */
+function govcms_ckan_menu() {
+  $items[GOVCMS_CKAN_CONFIG_PATH] = array(
+    'title' => t('govCMS CKAN'),
+    'description' => t('Settings for govCMS CKAN'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('govcms_ckan_settings_form'),
+    'access arguments' => array('administer govcms ckan'),
+    'file' => 'govcms_ckan.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function govcms_ckan_permission() {
+  return array(
+    'administer govcms ckan' => array(
+      'title' => t('Administer govCMS CKAN'),
+      'description' => t('Allows the user to access the govCMS CKAN admin page.'),
+    ),
+  );
+}
