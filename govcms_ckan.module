@@ -4,3 +4,87 @@
  * @file
  * Code for the govCMS CKAN module.
  */
+
+/**
+ * Implements hook_menu().
+ */
+function govcms_ckan_menu() {
+  $items['govcms-ckan/examples'] = array(
+    'title' => 'Charts test',
+    'page callback' => '_govcms_ckan_examples',
+    'access arguments' => array('access govcms ckan examples'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Page callback for examples page.
+ */
+function _govcms_ckan_examples() {
+
+  // Add the JS
+  // TODO: Libraries include.
+  drupal_add_css('https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.css', 'external');
+  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.13/d3.js', 'external');
+  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js', 'external');
+  // Custom JS.
+  drupal_add_js(drupal_get_path('module', 'govcms_ckan') . '/js/jquery.table_charts.js');
+
+  // Example Data.
+  // For now, both data sets should have the same amount of values.
+  $examples = array(
+    'line' => array(
+      'title' => 'Line Chart',
+      'type' => 'line',
+      'rotated' => 'false',
+      'data' => array(
+        'data1' => array(30, 200, 100, 400, 150, 250),
+        'data2' => array(50, 20, 10, 40, 15, 25),
+      ),
+    ),
+    'bar' => array(
+      'title' => 'Bar Chart',
+      'type' => 'bar',
+      'rotated' => 'false',
+      'data' => array(
+        'data1' => array(30, 200, 100, 400, 150, 250),
+        'data2' => array(130, 100, 140, 200, 150, 50),
+      ),
+    ),
+  );
+
+  // Return markup for each table.
+  $markup = array();
+  foreach ($examples as $id => $example) {
+    // Header.
+    $header = array();
+    $rows = array();
+    foreach ($example['data'] as $col => $datas) {
+      $header[] = $col;
+      // Rows.
+      foreach ($datas as $k => $data) {
+        $rows[$k][] = $data;
+      }
+    }
+
+    // Build a single table.
+    $markup[] = '<h2>' . $example['title'] . '</h2>';
+    $markup[] = theme('table', array(
+      'header' => $header,
+      'rows' => $rows,
+      'sticky' => FALSE,
+      'attributes' => array(
+        'id' => 'chart-' . $id,
+        'data-rotated' => $example['rotated'],
+        'data-type' => $example['type'],
+        'class' => array('table-chart'),
+      ),
+    ));
+    $markup[] = '<hr />';
+  }
+
+  // Return all tables joined together.
+  return implode('', $markup);
+}
+
