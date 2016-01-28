@@ -80,6 +80,8 @@ function _govcms_ckan_examples_page() {
         'id' => 'chart-' . $id,
         'data-rotated' => isset($example['rotated']) ? $example['rotated'] : 'false',
         'data-type' => $example['type'],
+        'data-defaultView' => isset($example['defaultView']) ? $example['defaultView'] : 'chart',
+        'data-labels' => isset($example['labels']) ? $example['labels'] : 'false',
         'class' => array('table-chart'),
       ),
     ));
@@ -89,7 +91,6 @@ function _govcms_ckan_examples_page() {
   // Return all tables joined together.
   return implode('', $markup);
 }
-
 
 /**
  * Example data for the tables on the examples page.
@@ -129,10 +130,11 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'spline' => array(
-      'title' => 'Spline Chart (vertical)',
+      'title' => 'Spline Chart - with labels (vertical)',
       'type' => 'spline',
       'lib' => 'c3js',
       'rotated' => 'false',
+      'labels' => 'true',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
@@ -243,10 +245,11 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'bar_stacked' => array(
-      'title' => 'Bar Chart Stacked (vertical)',
+      'title' => 'Bar Chart Stacked - Table default view (vertical)',
       'type' => 'stacked',
       'lib' => 'c3js',
       'rotated' => 'false',
+      'defaultView' => 'table',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),

@@ -8,16 +8,22 @@
    *
    * Usage.
    * ------
-   * Table markup notes (WIP & subject to change)
+   * Call this on the table you want to create a chart for:
+   * `$('.table-selector').tableCharts()`
+   * Defaults are listed below in the tableChart class.
+   *
+   * Settings for the charts obtained from the dom, they can also optionally be passed to this class.
    * - Settings stored as attributes in the table element
    * -- data-type: The type of chart in use (eg. line, spline, bar, stacked, area, area-spline).
    * -- data-chart: The chart implementation to use (see below)
-   * -- data-rotated: default is false, change to true to rotate the table axis.
+   * -- data-rotated: Default is false, change to true to rotate the table axis.
+   * -- data-labels: Should lables be shown at each data point. Defaults to false
+   * -- data-defaultView: Should the chart or table be displayed first. Defaults to chart.
    * -- data-palette: A comma separated list of hex colours to be used for the palette.
    * - Table headings (th) is used as the label and the following attributes can be used
    * -- data-color: Hex colour, alternative to using palette on the table element.
    * -- data-style: The style for the line (dashed, solid)
-   * - Each column forms a data set
+   * - Each column forms a data set, Table headings can be strings but table values must be Ints.
    *
    * Chart Implementations.
    * ----------------------
@@ -75,7 +81,7 @@
       // The data for the chart.
       data: {},
       // Data attributes automatically parsed from the table element.
-      dataAttributes: ['type', 'rotated', 'labels'],
+      dataAttributes: ['type', 'rotated', 'labels', 'defaultView'],
       // Chart views determine what is displaying chart vs table.
       chartViewName: 'chart',
       tableViewName: 'table',
@@ -176,7 +182,12 @@
      * Helper to create toggle button text.
      */
     self.toggleButtonText = function(view) {
-      return self.settings.toggleText.replace('{view}', view);
+      var s = self.settings;
+      if (view === undefined) {
+        // If no view specified, use the opposite of what the defaultView is.
+        view = s.defaultView == s.chartViewName ? s.tableViewName : s.chartViewName;
+      }
+      return s.toggleText.replace('{view}', view);
     };
 
     /*
@@ -203,7 +214,7 @@
       self.settings.$dom.addClass(self.settings.component + '--table');
 
       // Add a toggle button after the table.
-      self.$toggle.html(self.toggleButtonText('table'))
+      self.$toggle.html(self.toggleButtonText())
         .addClass(self.settings.component + '--toggle')
         .click(self.toggleView)
         .insertAfter(self.settings.$dom);
@@ -213,8 +224,12 @@
         .addClass(self.settings.component + '--chart')
         .insertAfter(self.settings.$dom);
 
-      // Hide the table.
-      self.settings.$dom.hide();
+      // Display only table or chart depending on defaultView.
+      if (self.settings.defaultView == self.settings.chartViewName) {
+        self.settings.$dom.hide();
+      } else {
+        self.$chart.hide();
+      }
 
       // Now the markup is ready, build the chart.
       self.buildChart();
@@ -278,6 +293,9 @@
         settings.data.regions[d.set] = [{style: d.style}];
       });
     }
+
+    // Show labels on data points?
+    settings.data.labels = settings.labels;
 
     // Options structure to be passed to c3
     var options = {
