@@ -11,7 +11,7 @@
    * Table markup notes (WIP & subject to change)
    * - Settings stored as attributes in the table element
    * -- data-type: The type of chart in use (eg. line, spline, bar, stacked, area, area-spline).
-   * -- data-lib: c3js, d3js, custom.
+   * -- data-chart: The chart implementation to use (see below)
    * -- data-rotated: default is false, change to true to rotate the table axis.
    * -- data-palette: A comma separated list of hex colours to be used for the palette.
    * - Table headings (th) is used as the label and the following attributes can be used
@@ -26,6 +26,8 @@
    *
    * To add a new chart implementation, add a function to the tableChartsChart object,
    * it will get passed the settings parsed by tableChart.
+   *
+   * c3js implementation is included in this file. @see tableChartsChart.c3js
    */
 
   /*
