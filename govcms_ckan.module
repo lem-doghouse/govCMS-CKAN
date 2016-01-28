@@ -35,21 +35,177 @@ function _govcms_ckan_examples() {
   // For now, both data sets should have the same amount of values.
   $examples = array(
     'line' => array(
-      'title' => 'Line Chart',
+      'title' => 'Line Chart with custom colours and line style (vertical)',
       'type' => 'line',
+      'lib' => 'c3js',
       'rotated' => 'false',
       'data' => array(
-        'data1' => array(30, 200, 100, 400, 150, 250),
-        'data2' => array(50, 20, 10, 40, 15, 25),
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+          'color' => '#000000',
+          'style' => 'dashed',
+        ),
+        'data2' => array(
+          'data' => array(50, 20, 10, 40, 15, 25),
+          'color' => '#777777',
+          'style' => 'solid',
+        ),
+      ),
+    ),
+    'line_horizontal' => array(
+      'title' => 'Line Chart (horizontal)',
+      'type' => 'line',
+      'lib' => 'c3js',
+      'rotated' => 'true',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(50, 20, 10, 40, 15, 25),
+        ),
+      ),
+    ),
+    'spline' => array(
+      'title' => 'Spline Chart (vertical)',
+      'type' => 'spline',
+      'lib' => 'c3js',
+      'rotated' => 'false',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(50, 20, 10, 40, 15, 25),
+        ),
+      ),
+    ),
+    'spline_horizontal' => array(
+      'title' => 'Spline Chart (horizontal)',
+      'type' => 'spline',
+      'lib' => 'c3js',
+      'rotated' => 'true',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(50, 20, 10, 40, 15, 25),
+        ),
+      ),
+    ),
+    'spline_area' => array(
+      'title' => 'Spline Area Chart (vertical)',
+      'type' => 'area-spline',
+      'lib' => 'c3js',
+      'rotated' => 'false',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(50, 20, 10, 40, 15, 25),
+        ),
+      ),
+    ),
+    'spline_area_horizontal' => array(
+      'title' => 'Spline Area Chart (horizontal)',
+      'type' => 'area-spline',
+      'lib' => 'c3js',
+      'rotated' => 'true',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(50, 20, 10, 40, 15, 25),
+        ),
+      ),
+    ),
+    'area' => array(
+      'title' => 'Area Chart (vertical)',
+      'type' => 'area',
+      'lib' => 'c3js',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(130, 100, 140, 200, 150, 50),
+        ),
+        'data3' => array(
+          'data' => array(50, 80, 180, 90, 95, 30),
+        ),
+      ),
+    ),
+    'area_horizontal' => array(
+      'title' => 'Area Chart (horizontal)',
+      'type' => 'area',
+      'lib' => 'c3js',
+      'rotated' => 'true',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(130, 100, 140, 200, 150, 50),
+        ),
       ),
     ),
     'bar' => array(
-      'title' => 'Bar Chart',
+      'title' => 'Bar Chart (vertical)',
       'type' => 'bar',
+      'lib' => 'c3js',
       'rotated' => 'false',
       'data' => array(
-        'data1' => array(30, 200, 100, 400, 150, 250),
-        'data2' => array(130, 100, 140, 200, 150, 50),
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(130, 100, 140, 200, 150, 50),
+        ),
+      ),
+    ),
+    'bar_horizontal' => array(
+      'title' => 'Bar Chart (horizontal)',
+      'type' => 'bar',
+      'lib' => 'c3js',
+      'rotated' => 'true',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(130, 100, 140, 200, 150, 50),
+        ),
+      ),
+    ),
+    'bar_stacked' => array(
+      'title' => 'Bar Chart Stacked (vertical)',
+      'type' => 'stacked',
+      'lib' => 'c3js',
+      'rotated' => 'false',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(130, 100, 140, 200, 150, 50),
+        ),
+      ),
+    ),
+    'bar_stacked_horizontal' => array(
+      'title' => 'Bar Chart Stacked (horizontal)',
+      'type' => 'stacked',
+      'lib' => 'c3js',
+      'rotated' => 'true',
+      'data' => array(
+        'data1' => array(
+          'data' => array(30, 200, 100, 400, 150, 250),
+        ),
+        'data2' => array(
+          'data' => array(130, 100, 140, 200, 150, 50),
+        ),
       ),
     ),
   );
@@ -60,23 +216,35 @@ function _govcms_ckan_examples() {
     // Header.
     $header = array();
     $rows = array();
+    $palette = array();
     foreach ($example['data'] as $col => $datas) {
-      $header[] = $col;
+      // Build table headers with options.
+      $th = array('data' => $col);
+      // Add optional column colour.
+      if (!empty($datas['color'])) {
+        $th['data-color'] = $datas['color'];
+      }
+      // Add optional column style.
+      if (!empty($datas['style'])) {
+        $th['data-style'] = $datas['style'];
+      }
+      $header[] = $th;
       // Rows.
-      foreach ($datas as $k => $data) {
+      foreach ($datas['data'] as $k => $data) {
         $rows[$k][] = $data;
       }
     }
 
     // Build a single table.
     $markup[] = '<h2>' . $example['title'] . '</h2>';
+    $markup[] = '<p>Graph type: <i>' . $example['type'] . '</i></p>';
     $markup[] = theme('table', array(
       'header' => $header,
       'rows' => $rows,
       'sticky' => FALSE,
       'attributes' => array(
         'id' => 'chart-' . $id,
-        'data-rotated' => $example['rotated'],
+        'data-rotated' => isset($example['rotated']) ? $example['rotated'] : 'false',
         'data-type' => $example['type'],
         'class' => array('table-chart'),
       ),
