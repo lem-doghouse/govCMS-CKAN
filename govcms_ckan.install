@@ -9,7 +9,6 @@
  * Implements hook_uninstall().
  */
 function govcms_ckan_uninstall() {
-  // Unset govCMS CKAN variables.
   variable_del('govcms_ckan_endpoint_url');
   variable_del('govcms_ckan_api_key');
 }
