@@ -1,9 +1,9 @@
 (function ($) {
 
   /*
-   * tableCharts.
-   * ------------
-   * This is a class + jQuery helper that handles turning data outputted in tabular
+   * tableCharts jQuery plugin.
+   * --------------------------
+   * This is a class + jQuery plugin that handles turning data outputted in tabular
    * format into a standardised settings set ready to be used with charts.
    *
    * Usage.
@@ -90,7 +90,9 @@
       // The text for the toggle button {view} gets replaced with the view name.
       toggleText: 'Show {view}',
       // Component prefix used for dom classes and ids.
-      component: 'table-chart'
+      component: 'table-chart',
+      // Chart Initialized callback
+      chartInitCallback: function() {}
     };
 
     // Settings start with defaults and extended by options passed to the constructor.
@@ -122,6 +124,9 @@
       if (self.settings.$dom.data('palette') !== undefined) {
         self.settings.palette = self.settings.$dom.data('palette').replace(' ', '').split(',');
       }
+
+      // Return self for chaining.
+      return self;
     };
 
     /*
@@ -137,6 +142,9 @@
       if ($th.data('style') !== undefined && $th.data('style') == 'dashed') {
         self.settings.styles.push({set: $th.html(), style: $th.data('style')});
       }
+
+      // Return self for chaining.
+      return self;
     };
 
     /*
@@ -156,9 +164,8 @@
         $('th,td', row).each(function(c, cell) {
           $cell = $(cell);
 
-          // If dealing with the table headers
-          // TODO: investigate why .prop('tagName') isn't working here.
-          if ($cell[0].tagName === 'TH') {
+          // If dealing with the table headers.
+          if ($cell.is('th')) {
             val = $cell.html();
             self.parseTableHeading(c, $cell);
           } else {
@@ -175,11 +182,17 @@
       // Add parsed data rows to settings.
       self.settings.data = {
         rows: rows
-      }
+      };
+
+      // Return self for chaining.
+      return self;
     };
 
     /*
      * Helper to create toggle button text.
+     *
+     * @return string
+     *   The text for a toggle button based on the state.
      */
     self.toggleButtonText = function(view) {
       var s = self.settings;
@@ -200,6 +213,9 @@
       self.$toggle.html(self.toggleButtonText(self.currentView));
       // Update current view.
       self.currentView = self.currentView == self.settings.chartViewName ? self.settings.tableViewName : self.settings.chartViewName;
+
+      // Return self for chaining.
+      return self;
     };
 
     /*
@@ -231,8 +247,14 @@
         self.$chart.hide();
       }
 
-      // Now the markup is ready, build the chart.
-      self.buildChart();
+      self
+        // Now the markup is ready, build the chart.
+        .buildChart()
+        // Add download buttons. TODO: Move elsewhere.
+        .addDownloadButtons();
+
+      // Return self for chaining.
+      return self;
     };
 
     /*
@@ -246,19 +268,48 @@
         // No implementation found.
         self.$chart.html('No chart implementation found for ' + self.settings.chart);
       }
+
+      // Return self for chaining.
+      return self;
+    };
+
+    /*
+     * Add download buttons, requires $.chartExport()
+     *
+     * TODO: Move to a more appropriate place! Should not live in this class.
+     */
+    self.addDownloadButtons = function() {
+      if (typeof $.fn.chartExport !== 'function') {
+        return;
+      }
+      var buttonTypes = ['svg', 'png'];
+      $(buttonTypes).each(function(i, format) {
+        $('<button>')
+          .html('Download as ' + format)
+          .insertAfter(self.$toggle)
+          .addClass(self.settings.component + '--download')
+          .chartExport({format: format, svg: self.$chart});
+      });
+
+      // Return self for chaining.
+      return self;
     };
 
     /*
      * Initialize the class.
      */
     self.init = function() {
-      self.parseSettings();
-      self.parseData();
-      self.buildMarkup();
+      self
+        .parseSettings()
+        .parseData()
+        .buildMarkup();
     };
 
     // Init on construct.
     self.init();
+
+    // Return self for chaining.
+    return self;
   };
 
   /**
@@ -306,7 +357,8 @@
       },
       color: {
         pattern: settings.palette
-      }
+      },
+      oninit: settings.chartInitCallback()
     };
 
     // Create chart.
@@ -318,12 +370,14 @@
    */
   $.fn.tableCharts = function (settings) {
     window.tableCharts = window.tableCharts || [];
+    settings = settings || {};
     return this.each(function (i, dom) {
       // Store all the charts on the page in tableCharts.
       // Each chart needs a unique ID for the page.
       // TODO: Consider alternative way of creating a chartId, will get conflicts if called multiple times.
+      settings.chartId = i;
       window.tableCharts.push(
-        new tableChart(dom, {chartId: i})
+        new tableChart(dom, settings)
       );
     });
   };
