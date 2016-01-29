@@ -6,9 +6,158 @@
  */
 
 /**
+ * Implements hook_field_schema().
+ */
+function govcms_ckan_field_schema($field) {
+  return array(
+    'columns' => array(
+      'dataset_id' => array(
+        'type' => 'varchar',
+        'description' => 'The unique identifier of the dataset.',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'dataset_title' => array(
+        'type' => 'varchar',
+        'description' => 'The title of the dataset.',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_install().
+ */
+function govcms_ckan_install() {
+  module_load_include('inc', 'node', 'content_types');
+  db_update('system')
+    ->condition('name', 'govcms_ckan')
+    ->condition('type', 'module')
+    ->fields(array('weight' => -1))
+    ->execute();
+
+  // Create the graph type.
+  $graph_type = array(
+    'type' => 'ckan_graph',
+    'name' => st('CKAN Graph'),
+    'base' => 'node_content',
+    'description' => st('Create a new graph that can be attach to a node or wysiwyg.'),
+    'custom' => TRUE,
+    'modified' => TRUE,
+    'locked' => FALSE,
+  );
+
+  $graph_type = node_type_set_defaults($graph_type);
+  node_type_save($graph_type);
+
+  // We enable the CKAN graph by default
+  variable_set('ckan_graph_node_ckan_graph', TRUE);
+
+  govcms_ckan_create_graph_data_field();
+  govcms_ckan_create_graph_type_field();
+}
+
+/**
+ * Create the graph data field and binds it to ckan_graph bundle.
+ */
+function govcms_ckan_create_graph_data_field() {
+  $field_name = 'ckan_graph_data';
+  $field = array(
+    'field_name' => $field_name,
+    'type' => 'ckan_graph_field_data',
+    'cardinality' => '-1',
+  );
+  $field = field_create_field($field);
+
+  // Creates the field instance and bind it to ckan_graph bundle.
+  $instance = array(
+    'field_name' => $field['field_name'],
+    'entity_type' => 'node',
+    'bundle' => 'ckan_graph',
+    'description' => 'A field for for storing CKAN graph dataset',
+    'label' => 'Data',
+    'required' => 1,
+    'active' => 1,
+    'widget' => array(
+      'type' => 'ckan_graph_field_data',
+    ),
+  );
+  field_create_instance($instance);
+}
+
+/**
+ * Create the graph type field and binds it to ckan_graph bundle.
+ */
+function govcms_ckan_create_graph_type_field() {
+  $field_name = 'ckan_graph_type';
+
+  // We list the default supported graph types.
+  $graph_type = array(
+    'c3js:line:false' => 'Line Chart (verical)',
+    'c3js:line:true' => 'Line Chart (horizontal)',
+    'c3js:spline:false' => 'Spline Chart (vertical)',
+    'c3js:spline:true' => 'Spline Chart (horizontal)',
+    'c3js:area-spline:false' => 'Spline Area Chart (vertical)',
+    'c3js:area-spline:true' => 'Spline Area Chart (horizontal)',
+    'c3js:area:false' => 'Area Chart (vertical)',
+    'c3js:area:true' => 'Area Chart (horizontal)',
+    'c3js:bar:false' => 'Bar Chart (vertical)',
+    'c3js:bar:true' => 'Bar Chart (horizontal)',
+    'c3js:stacked:false' => 'Bar Chart Stacked (vertical)',
+    'c3js:stacked:true' => 'Bar Chart Stacked (horizontal)',
+  );
+
+  $field = array(
+    'field_name' => $field_name,
+    'type' => 'list_text',
+    'settings' => array(
+      'allowed_values' => $graph_type,
+      'allowed_values_function' => '',
+    ),
+  );
+  $field = field_create_field($field);
+
+  // Creates the field instance and bind it to ckan_graph bundle.
+  $instance = array(
+    'field_name' => $field['field_name'],
+    'entity_type' => 'node',
+    'bundle' => 'ckan_graph',
+    'description' => 'A field for for storing CKAN graph type',
+    'label' => 'Graph type',
+    'required' => 1,
+    'description' => '',
+    'default_value' => NULL,
+    'widget' => array(
+      'weight' => '1',
+      'type' => 'options_select',
+      'module' => 'options',
+      'active' => 1,
+    ),
+  );
+  field_create_instance($instance);
+}
+
+/**
  * Implements hook_uninstall().
  */
 function govcms_ckan_uninstall() {
   variable_del('govcms_ckan_endpoint_url');
   variable_del('govcms_ckan_api_key');
+
+  foreach (node_type_get_names() as $type => $name) {
+    variable_del('ckan_graph_node_' . $type);
+  }
+
+  // We delete the CKAN graph content type if there is no existing nodes.
+  $query = new EntityFieldQuery();
+  $results = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'ckan_graph')
+    ->range(0, 1)
+    ->execute();
+  if (!$results) {
+    node_type_delete('ckan_graph');
+    drupal_flush_all_caches();
+  }
 }
