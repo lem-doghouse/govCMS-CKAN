@@ -1,7 +1,9 @@
 (function ($) {
 
+  "use strict";
+
   /*
-   * Chart Export jQuery plugin.
+   * ChartExport jQuery plugin.
    * ---------------------------
    * This plugin handles exporting a chart to a svg/png format.
    *
@@ -28,7 +30,7 @@
    * @returns {chartExport}
    *   Return self for chaining.
    */
-  var chartExport = function(dom, settings) {
+  var ChartExport = function (dom, settings) {
     var self = this;
 
     // Defaults.
@@ -56,13 +58,13 @@
     /*
      * Validate requirements.
      */
-    self.validateRequirements = function() {
-      if (self.settings.format == 'svg') {
+    self.validateRequirements = function () {
+      if (self.settings.format === 'svg') {
         // This *should cover html5 requirements too. TODO confirm that is enough?
         self.settings.valid = (typeof btoa === 'function');
       } else {
         // Assuming nothing else is using Blob.
-        self.settings.valid = (typeof Blob === 'function')
+        self.settings.valid = (typeof Blob === 'function');
       }
 
       // Return self for chaining.
@@ -72,7 +74,7 @@
     /*
      * Parse the svg object.
      */
-    self.parseSvg = function() {
+    self.parseSvg = function () {
       // Processed class.
       var processedClass = 'chart-export-processed';
 
@@ -85,7 +87,7 @@
       self.settings.svg = self.settings.svg.is('svg') ? self.settings.svg : self.settings.svg.find('> svg');
 
       // If no svg, validation failed.
-      if (self.settings.svg.length == 0 || self.settings.svg.hasClass(processedClass)) {
+      if (self.settings.svg.length === 0 || self.settings.svg.hasClass(processedClass)) {
         self.settings.valid = false;
         return;
       }
@@ -108,7 +110,7 @@
     /*
      * Inject c3js styles if required.
      */
-    self.includeC3jsStyle = function() {
+    self.includeC3jsStyle = function () {
       // Check if styles need to be added first.
       if (!self.settings.includeC3jsStyles || self.settings.svg.hasClass('c3js-styles-processed')) {
         return;
@@ -127,7 +129,7 @@
     /*
      * Save as SVG.
      */
-    self.saveSVG = function() {
+    self.saveSVG = function () {
       // Get the html and return as a blob using FileSaver.
       var src = 'data:image/svg+xml;base64,' + btoa(self.svgHtml);
       self.downloadHtml5(src);
@@ -136,13 +138,13 @@
     /*
      * Save as PNG.
      */
-    self.savePNG = function() {
+    self.savePNG = function () {
       // Create a new image and add the svg as a src.
-      var image = new Image;
+      var image = new Image();
       image.src = 'data:image/svg+xml;base64,' + btoa(self.svgHtml);
 
       // On image load, trigger its download with html5 download attr.
-      image.onload = function() {
+      image.onload = function () {
         // Once loaded, turn the image object into a 2d canvas.
         var canvas = document.createElement('canvas'), context;
         canvas.width = image.width;
@@ -152,13 +154,13 @@
 
         // Trigger a file download.
         self.downloadHtml5(canvas.toDataURL('image/png'));
-      }
+      };
     };
 
     /*
      * Trigger a download using the html5 download attribute.
      */
-    self.downloadHtml5 = function(href) {
+    self.downloadHtml5 = function (href) {
       // This doesn't work if we use jQuery to create the el so vanilla JS it is.
       var a = document.createElement('a');
       // Define the filename in the 'save as' box (also triggers the save as box)
@@ -175,7 +177,7 @@
     /*
      * Click action.
      */
-    self.bindClick = function(e) {
+    self.bindClick = function (e) {
       e.preventDefault();
 
       // If not passed validation, clicking the button returns an error msg.
@@ -200,7 +202,7 @@
     /*
      * Init the class.
      */
-    self.init = function() {
+    self.init = function () {
       // Only one export per button.
       if (self.settings.$button.hasClass('chart-export-processed')) {
         return;
@@ -230,7 +232,7 @@
    */
   $.fn.chartExport = function (settings) {
     return this.each(function (i, dom) {
-      new chartExport(dom, settings)
+      new ChartExport(dom, settings)
     });
   };
 

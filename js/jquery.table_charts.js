@@ -1,7 +1,9 @@
 (function ($) {
 
+  "use strict";
+
   /*
-   * tableCharts jQuery plugin.
+   * TableCharts jQuery plugin.
    * --------------------------
    * This is a class + jQuery plugin that handles turning data outputted in tabular
    * format into a standardised settings set ready to be used with charts.
@@ -55,7 +57,7 @@
    * @param dom
    *   The dom for a single table.
    */
-  var tableChart = function(dom, settings) {
+  var TableChart = function(dom, settings) {
     var self = this;
 
     /*
@@ -92,7 +94,7 @@
       // Component prefix used for dom classes and ids.
       component: 'table-chart',
       // Chart Initialized callback
-      chartInitCallback: function() {}
+      chartInitCallback: function () {}
     };
 
     // Settings start with defaults and extended by options passed to the constructor.
@@ -108,12 +110,12 @@
      * Parse settings from the table attributes.
      * @see settings.dataAttributes for what gets parsed.
      */
-    self.parseSettings = function() {
+    self.parseSettings = function () {
       var val = null;
 
       // Available settings are found in the dataAttributes setting. We loop through
       // each of those and if not empty, override the settings.
-      $(self.settings.dataAttributes).each(function(i, attr) {
+      $(self.settings.dataAttributes).each(function (i, attr) {
         val = self.settings.$dom.data(attr);
         if (val !== undefined) {
           self.settings[attr] = val;
@@ -139,7 +141,7 @@
       }
       // Currently only style option is dashed and will only work with line.
       // @see http://c3js.org/samples/simple_regions.html
-      if ($th.data('style') !== undefined && $th.data('style') == 'dashed') {
+      if ($th.data('style') !== undefined && $th.data('style') === 'dashed') {
         self.settings.styles.push({set: $th.html(), style: $th.data('style')});
       }
 
@@ -153,15 +155,15 @@
      * NOTE: Assumes that all tables have a TH and this is the label for
      * that data set. All other values in that column are assumed to be integers.
      */
-    self.parseData = function() {
+    self.parseData = function () {
       var rows = [], val, $cell;
 
       // On each row.
-      $('tr', self.settings.$dom).each(function(r, row) {
+      $('tr', self.settings.$dom).each(function (r, row) {
         rows[r] = [];
 
         // On each cell.
-        $('th,td', row).each(function(c, cell) {
+        $('th,td', row).each(function (c, cell) {
           $cell = $(cell);
 
           // If dealing with the table headers.
@@ -194,11 +196,11 @@
      * @return string
      *   The text for a toggle button based on the state.
      */
-    self.toggleButtonText = function(view) {
+    self.toggleButtonText = function (view) {
       var s = self.settings;
       if (view === undefined) {
         // If no view specified, use the opposite of what the defaultView is.
-        view = s.defaultView == s.chartViewName ? s.tableViewName : s.chartViewName;
+        view = s.defaultView === s.chartViewName ? s.tableViewName : s.chartViewName;
       }
       return s.toggleText.replace('{view}', view);
     };
@@ -206,13 +208,13 @@
     /*
      * Toggle visibility of the chart and table.
      */
-    self.toggleView = function() {
+    self.toggleView = function () {
       self.$chart.toggle();
       self.settings.$dom.toggle();
       // Update button text.
       self.$toggle.html(self.toggleButtonText(self.currentView));
       // Update current view.
-      self.currentView = self.currentView == self.settings.chartViewName ? self.settings.tableViewName : self.settings.chartViewName;
+      self.currentView = self.currentView === self.settings.chartViewName ? self.settings.tableViewName : self.settings.chartViewName;
 
       // Return self for chaining.
       return self;
@@ -221,7 +223,7 @@
     /*
      * Prepare the markup on the page for charts.
      */
-    self.buildMarkup = function() {
+    self.buildMarkup = function () {
       // Build our chart dom ID, and dom elements we'll need.
       self.$chart = $('<div>');
       self.$toggle = $('<button>');
@@ -241,7 +243,7 @@
         .insertAfter(self.settings.$dom);
 
       // Display only table or chart depending on defaultView.
-      if (self.settings.defaultView == self.settings.chartViewName) {
+      if (self.settings.defaultView === self.settings.chartViewName) {
         self.settings.$dom.hide();
       } else {
         self.$chart.hide();
@@ -260,7 +262,7 @@
     /*
      * Build the chart based on the chart setting.
      */
-    self.buildChart = function() {
+    self.buildChart = function () {
       // If a chart implementation exists, call it and pass the settings.
       if (typeof tableChartsChart[self.settings.chart] === 'function') {
         tableChartsChart[self.settings.chart](self.settings);
@@ -283,7 +285,7 @@
         return;
       }
       var buttonTypes = ['svg', 'png'];
-      $(buttonTypes).each(function(i, format) {
+      $(buttonTypes).each(function (i, format) {
         $('<button>')
           .html('Download as ' + format)
           .insertAfter(self.$toggle)
@@ -298,7 +300,7 @@
     /*
      * Initialize the class.
      */
-    self.init = function() {
+    self.init = function () {
       self
         .parseSettings()
         .parseData()
@@ -320,9 +322,9 @@
    *
    * TODO: If this gets to large, move to its own file.
    */
-  tableChartsChart.c3js = function(settings) {
+  tableChartsChart.c3js = function (settings) {
     // Ensure library is loaded.
-    if (c3 === undefined) {
+    if (typeof c3 === 'undefined') {
       alert('c3js library not found');
       return;
     }
@@ -332,7 +334,7 @@
 
     // Stacked graphs are just bar graphs that are grouped,
     // so we change the type and add the grouping.
-    if (settings.type == 'stacked') {
+    if (settings.type === 'stacked') {
       settings.data.type = 'bar';
       settings.data.groups = [settings.data.rows[0]];
     }
@@ -340,7 +342,7 @@
     // Apply styles (currently only works with lines and dashes)
     if (settings.styles.length) {
       settings.data.regions = {};
-      $(settings.styles).each(function(i, d){
+      $(settings.styles).each(function (i, d){
         settings.data.regions[d.set] = [{style: d.style}];
       });
     }
@@ -377,7 +379,7 @@
       // TODO: Consider alternative way of creating a chartId, will get conflicts if called multiple times.
       settings.chartId = i;
       window.tableCharts.push(
-        new tableChart(dom, settings)
+        new TableChart(dom, settings)
       );
     });
   };
@@ -389,6 +391,6 @@
    */
   $(document).ready(function(){
     $(".table-chart").tableCharts();
-  })
+  });
 
 })(jQuery);
