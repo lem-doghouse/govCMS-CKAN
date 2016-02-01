@@ -2,3 +2,4 @@ name = GovCMS CKAN
 description = govCMS CKAN provides integration with CKAN.
 package = govCMS
 core = 7.x
+configure = admin/config/services/govcms-ckan
