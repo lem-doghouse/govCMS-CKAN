@@ -112,7 +112,7 @@
      */
     self.includeC3jsStyle = function () {
       // Check if styles need to be added first.
-      if (!self.settings.includeC3jsStyles || self.settings.svg.hasClass('c3js-styles-processed')) {
+      if (!self.settings.includeC3jsStyles) {
         return;
       }
 

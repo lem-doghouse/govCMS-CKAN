@@ -405,13 +405,4 @@
     });
   };
 
-  /**
-   * ---------------------------
-   * TESTING ONLY (example page).
-   * ---------------------------
-   */
-  $(document).ready(function(){
-    $(".table-chart").tableCharts();
-  });
-
 })(jQuery);

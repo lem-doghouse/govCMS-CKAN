@@ -1,0 +1,4 @@
+name = GovCMS CKAN Display Examples
+description = Provides example usage of charts.
+package = govCMS
+core = 7.x
