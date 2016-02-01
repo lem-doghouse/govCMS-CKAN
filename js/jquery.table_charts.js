@@ -20,8 +20,11 @@
    * -- data-chart: The chart implementation to use (see below)
    * -- data-rotated: Default is false, change to true to rotate the table axis.
    * -- data-labels: Should lables be shown at each data point. Defaults to false
-   * -- data-defaultView: Should the chart or table be displayed first. Defaults to chart.
+   * -- data-defaultView: Should the chart or table be displayed first. Defaults to 'chart'.
    * -- data-palette: A comma separated list of hex colours to be used for the palette.
+   * -- data-grid: Grid lines to use: xy, x or y
+   * -- data-xLabel: The optional label to show on the X axis
+   * -- data-yLabel: The optional label to show on the Y axis
    * - Table headings (th) is used as the label and the following attributes can be used
    * -- data-color: Hex colour, alternative to using palette on the table element.
    * -- data-style: The style for the line (dashed, solid)
@@ -80,10 +83,13 @@
       palette: [],
       labels: false,
       styles: [],
+      grid: null,
+      xLabel: null,
+      yLabel: null,
       // The data for the chart.
       data: {},
       // Data attributes automatically parsed from the table element.
-      dataAttributes: ['type', 'rotated', 'labels', 'defaultView'],
+      dataAttributes: ['type', 'rotated', 'labels', 'defaultView', 'grid', 'xLabel', 'yLabel'],
       // Chart views determine what is displaying chart vs table.
       chartViewName: 'chart',
       tableViewName: 'table',
@@ -117,7 +123,7 @@
       // each of those and if not empty, override the settings.
       $(self.settings.dataAttributes).each(function (i, attr) {
         val = self.settings.$dom.data(attr);
-        if (val !== undefined) {
+        if (val !== undefined && val !== null) {
           self.settings[attr] = val;
         }
       });
@@ -355,13 +361,28 @@
       bindto: '#' + settings.chartDomId,
       data: settings.data,
       axis: {
-        rotated: settings.rotated
+        rotated: settings.rotated,
+        x: {label: settings.xLabel},
+        y: {label: settings.yLabel}
       },
       color: {
         pattern: settings.palette
       },
-      oninit: settings.chartInitCallback()
+      oninit: settings.chartInitCallback
     };
+
+    // Add optional grid lines.
+    switch (settings.grid) {
+      case 'xy':
+        options.grid = {x: {show: true}, y: {show: true}};
+        break;
+      case 'x':
+        options.grid = {x: {show: true}};
+        break;
+      case 'y':
+        options.grid = {y: {show: true}};
+        break;
+    }
 
     // Create chart.
     c3.generate(options);

@@ -85,6 +85,9 @@ function _govcms_ckan_examples_page() {
         'data-type' => $example['type'],
         'data-defaultView' => isset($example['defaultView']) ? $example['defaultView'] : 'chart',
         'data-labels' => isset($example['labels']) ? $example['labels'] : 'false',
+        'data-grid' => isset($example['grid']) ? $example['grid'] : '',
+        'data-xLabel' => isset($example['xLabel']) ? $example['xLabel'] : '',
+        'data-yLabel' => isset($example['yLabel']) ? $example['yLabel'] : '',
         'class' => array('table-chart'),
       ),
     ));
@@ -119,10 +122,11 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'line_horizontal' => array(
-      'title' => 'Line Chart (horizontal)',
+      'title' => 'Line Chart with XY Grid (horizontal)',
       'type' => 'line',
       'lib' => 'c3js',
       'rotated' => 'true',
+      'grid' => 'xy',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
@@ -133,7 +137,7 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'spline' => array(
-      'title' => 'Spline Chart - with labels (vertical)',
+      'title' => 'Spline Chart - with data labels (vertical)',
       'type' => 'spline',
       'lib' => 'c3js',
       'rotated' => 'false',
@@ -148,10 +152,12 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'spline_horizontal' => array(
-      'title' => 'Spline Chart (horizontal)',
+      'title' => 'Spline Chart with axis labels (horizontal)',
       'type' => 'spline',
       'lib' => 'c3js',
       'rotated' => 'true',
+      'xLabel' => 'Age (yr)',
+      'yLabel' => 'Depth (mm)',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
@@ -162,10 +168,11 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'spline_area' => array(
-      'title' => 'Spline Area Chart (vertical)',
+      'title' => 'Spline Area Chart with Y Grid (vertical)',
       'type' => 'area-spline',
       'lib' => 'c3js',
       'rotated' => 'false',
+      'grid' => 'y',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
@@ -220,10 +227,11 @@ function _govcms_ckan_examples_data() {
       ),
     ),
     'bar' => array(
-      'title' => 'Bar Chart (vertical)',
+      'title' => 'Bar Chart with X grid (vertical)',
       'type' => 'bar',
       'lib' => 'c3js',
       'rotated' => 'false',
+      'grid' => 'x',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
