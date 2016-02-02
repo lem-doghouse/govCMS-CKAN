@@ -8,9 +8,9 @@ streamline publishing, sharing, finding and using data.
 Submodules
 ----------
 
-GovCMS CKAN Display
+govCMS CKAN Display
 - Handles turning the tabular data into charts.
 - Provides ability to download charts as svg/png.
 
-GovCMS CKAN Display Examples
+govCMS CKAN Display Examples
 - Provides an examples page for viewing different chat types.

@@ -1,5 +1,5 @@
 /**
- * GovCMS CKAN Display.
+ * govCMS CKAN Display.
  */
 (function ($){
 
@@ -10,12 +10,12 @@
     attach: function (context, settings) {
 
       // Only auto add if we have settings.
-      if (settings.govcms_ckan_display === undefined) {
+      if (settings.govcmsCkanDisplay === undefined) {
         return;
       }
 
       // Tables to act on.
-      var $tables = $(settings.govcms_ckan_display.tableChartSelectors.join(','), context);
+      var $tables = $(settings.govcmsCkanDisplay.tableChartSelectors.join(','), context);
 
       // Add tableCharts.
       $tables.once('table-charts').tableCharts();

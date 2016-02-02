@@ -23,8 +23,8 @@ function govcms_ckan_display_examples_permission() {
 function govcms_ckan_display_examples_menu() {
   $items['govcms-ckan/examples'] = array(
     'title' => 'Charts test',
-    'page callback' => '_govcms_ckan_display_examples_page',
-    'access arguments' => array('access govcms ckan examples'),
+    'page callback' => 'govcms_ckan_display_examples_page',
+    'access arguments' => array('access govcms ckan display examples'),
     'type' => MENU_CALLBACK,
   );
   return $items;
@@ -35,7 +35,7 @@ function govcms_ckan_display_examples_menu() {
  *
  * Builds table markup and includes JS libs required.
  */
-function _govcms_ckan_display_examples_page() {
+function govcms_ckan_display_examples_page() {
 
   // Add the JS to the tables.
   govcms_ckan_display_add_charts('.table-chart-examples');
@@ -65,14 +65,24 @@ function _govcms_ckan_display_examples_page() {
     }
 
     // Build a single table.
-    $markup[] = '<h2>' . $example['title'] . '</h2>';
-    $markup[] = '<p>Graph type: <i>' . $example['type'] . '</i></p>';
+    $markup[] = theme('html_tag', array(
+      'element' => array(
+        '#tag' => 'h2',
+        '#value' => $example['title'],
+      ),
+    ));
+    $markup[] = theme('html_tag', array(
+      'element' => array(
+        '#tag' => 'p',
+        '#value' => t('Graph type: @type', array('@type' => $example['type'])),
+      ),
+    ));
     $markup[] = theme('table', array(
       'header' => $header,
       'rows' => $rows,
       'sticky' => FALSE,
       'attributes' => array(
-        'id' => 'chart-' . $id,
+        'id' => drupal_html_id('chart-' . $id),
         'data-rotated' => isset($example['rotated']) ? $example['rotated'] : 'false',
         'data-type' => $example['type'],
         'data-defaultView' => isset($example['defaultView']) ? $example['defaultView'] : 'chart',
@@ -83,7 +93,12 @@ function _govcms_ckan_display_examples_page() {
         'class' => array('table-chart-examples'),
       ),
     ));
-    $markup[] = '<hr />';
+    $markup[] = theme('html_tag', array(
+      'element' => array(
+        '#tag' => 'hr',
+        '#value' => '',
+      ),
+    ));
   }
 
   // Return all tables joined together.
@@ -92,6 +107,9 @@ function _govcms_ckan_display_examples_page() {
 
 /**
  * Example data for the tables on the examples page.
+ *
+ * @return array
+ *   An array of examples data.
  */
 function _govcms_ckan_display_examples_data() {
   return array(

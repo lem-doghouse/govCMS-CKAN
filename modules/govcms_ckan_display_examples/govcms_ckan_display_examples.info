@@ -1,4 +1,5 @@
-name = GovCMS CKAN Display Examples
+name = govCMS CKAN Display Examples
 description = Provides example usage of charts.
 package = govCMS
 core = 7.x
+dependencies[] = govcms_ckan_display

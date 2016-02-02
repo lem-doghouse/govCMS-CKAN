@@ -15,7 +15,7 @@ function govcms_ckan_display_library() {
 
   // Include custom charts libraries.
   $libraries['govcms_ckan_charts'] = array(
-    'title' => 'GovCMS CKAN Charts',
+    'title' => 'govCMS CKAN Charts',
     'website' => 'http://www.govcms.gov.au',
     'version' => '1.0',
     'js' => array(
@@ -78,8 +78,8 @@ function govcms_ckan_display_library() {
  * A helper to add charts to the provide selector.
  *
  * @param string $table_selector
- *   The jQuery selector for the tables you want to add charts to. If NULL then
- *   only the libraries will be added.
+ *   (optional) The jQuery selector for the tables you want to add charts to. If
+ *   NULL then only the libraries will be added.
  */
 function govcms_ckan_display_add_charts($table_selector = NULL) {
   // Include c3js library.
@@ -90,7 +90,7 @@ function govcms_ckan_display_add_charts($table_selector = NULL) {
   // Add the selector to drupal settings.
   if (!is_null($table_selector)) {
     drupal_add_js(array(
-      'govcms_ckan_display' => array(
+      'govcmsCkanDisplay' => array(
         'tableChartSelectors' => array($table_selector),
       ),
     ), 'setting');
