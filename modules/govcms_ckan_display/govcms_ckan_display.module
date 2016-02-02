@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * @file
+ * Code for the govCMS CKAN Display module.
+ */
+
+/**
+ * Implements hook_library().
+ */
+function govcms_ckan_display_library() {
+
+  // Module path.
+  $module_path = drupal_get_path('module', 'govcms_ckan_display');
+
+  // Include custom charts libraries.
+  $libraries['govcms_ckan_charts'] = array(
+    'title' => 'GovCMS CKAN Charts',
+    'website' => 'http://www.govcms.gov.au',
+    'version' => '1.0',
+    'js' => array(
+      array(
+        'type' => 'file',
+        'data' => $module_path . '/js/jquery.chart_export.js',
+        'group' => JS_LIBRARY,
+        'preprocess' => FALSE,
+      ),
+      array(
+        'type' => 'file',
+        'data' => $module_path . '/js/jquery.table_charts.js',
+        'group' => JS_LIBRARY,
+        'preprocess' => FALSE,
+      ),
+      array(
+        'type' => 'file',
+        'data' => $module_path . '/js/govcms_ckan_display.js',
+        'group' => JS_LIBRARY,
+        'preprocess' => FALSE,
+      ),
+    ),
+  );
+
+  // Include c3/d3 libraries.
+  // TODO: Ideally these should be stored locally but until the 'where to put
+  // it' issue has been solved, we will just use external via a cdn.
+  $libraries['c3js'] = array(
+    'title' => 'c3js libraries',
+    'website' => 'http://c3js.org',
+    'version' => '0.4.10',
+    'js' => array(
+      array(
+        'type' => 'external',
+        'data' => 'https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.13/d3.js',
+        'group' => JS_LIBRARY,
+        'preprocess' => FALSE,
+      ),
+      array(
+        'type' => 'external',
+        'data' => 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js',
+        'group' => JS_LIBRARY,
+        'preprocess' => FALSE,
+      ),
+    ),
+    'css' => array(
+      array(
+        'type' => 'external',
+        'data' => 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.css',
+        'group' => CSS_DEFAULT,
+        'preprocess' => FALSE,
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * A helper to add charts to the provide selector.
+ *
+ * @param string $table_selector
+ *   The jQuery selector for the tables you want to add charts to. If NULL then
+ *   only the libraries will be added.
+ */
+function govcms_ckan_display_add_charts($table_selector = NULL) {
+  // Include c3js library.
+  drupal_add_library('govcms_ckan_display', 'c3js');
+  // Include custom chart libs.
+  drupal_add_library('govcms_ckan_display', 'govcms_ckan_charts');
+
+  // Add the selector to drupal settings.
+  if (!is_null($table_selector)) {
+    drupal_add_js(array(
+      'govcms_ckan_display' => array(
+        'tableChartSelectors' => array($table_selector),
+      ),
+    ), 'setting');
+  }
+}

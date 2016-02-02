@@ -1,0 +1,4 @@
+name = GovCMS CKAN Display
+description = Handles turning tabular data into charts, downloading charts and input filters.
+package = govCMS
+core = 7.x
