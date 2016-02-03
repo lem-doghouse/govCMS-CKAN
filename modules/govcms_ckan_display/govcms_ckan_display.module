@@ -40,7 +40,7 @@ function govcms_ckan_display_library() {
     ),
   );
 
-  // Include c3/d3 libraries.
+  // External Libraries (c3js & filesaver).
   // TODO: Ideally these should be stored locally but until the 'where to put
   // it' issue has been solved, we will just use external via a cdn.
   $libraries['c3js'] = array(
@@ -60,6 +60,18 @@ function govcms_ckan_display_library() {
         'group' => JS_LIBRARY,
         'preprocess' => FALSE,
       ),
+      array(
+	'type' => 'external',
+	'data' => 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js',
+	'group' => JS_LIBRARY,
+	'preprocess' => FALSE,
+      ),
+      array(
+	'type' => 'external',
+	'data' => 'https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js',
+	'group' => JS_LIBRARY,
+	'preprocess' => FALSE,
+      ),
     ),
     'css' => array(
       array(
@@ -67,6 +79,25 @@ function govcms_ckan_display_library() {
         'data' => 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.css',
         'group' => CSS_DEFAULT,
         'preprocess' => FALSE,
+      ),
+    ),
+  );
+  $libraries['filesaver'] = array(
+    'title' => 'c3js libraries',
+    'website' => 'http://c3js.org',
+    'version' => '0.4.10',
+    'js' => array(
+      array(
+	'type' => 'external',
+	'data' => 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js',
+	'group' => JS_LIBRARY,
+	'preprocess' => FALSE,
+      ),
+      array(
+	'type' => 'external',
+	'data' => 'https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js',
+	'group' => JS_LIBRARY,
+	'preprocess' => FALSE,
       ),
     ),
   );
@@ -84,6 +115,8 @@ function govcms_ckan_display_library() {
 function govcms_ckan_display_add_charts($table_selector = NULL) {
   // Include c3js library.
   drupal_add_library('govcms_ckan_display', 'c3js');
+  // Include filesaver library.
+  drupal_add_library('govcms_ckan_display', 'filesaver');
   // Include custom chart libs.
   drupal_add_library('govcms_ckan_display', 'govcms_ckan_charts');
 

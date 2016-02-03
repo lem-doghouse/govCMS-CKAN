@@ -49,7 +49,10 @@
       // Passed Validation requirements.
       valid: true,
       // Error message.
-      errorMsg: 'Sorry, your browser does not support this function.'
+      errorMsg: 'Sorry, your browser does not support this function.',
+      // Manual download message.
+      manualDownloadMessage: 'Your browser requires manual saving of this file, when redirected to the image, ' +
+	'right click and "Save Page As..." to save it to your computer with the filename "chart.{format}"'
     };
 
     // Update defaults with passed settings.
@@ -59,12 +62,11 @@
      * Validate requirements.
      */
     self.validateRequirements = function () {
-      if (self.settings.format === 'svg') {
-        // This *should cover html5 requirements too. TODO confirm that is enough?
-        self.settings.valid = (typeof btoa === 'function');
-      } else {
-        // Assuming nothing else is using Blob.
-        self.settings.valid = (typeof Blob === 'function');
+      // TODO: Check html5 support.
+      try {
+	var isFileSaverSupported = !!new Blob;
+      } catch (e) {
+	self.settings.valid = false;
       }
 
       // Return self for chaining.
@@ -130,9 +132,9 @@
      * Save as SVG.
      */
     self.saveSVG = function () {
-      // Get the html and return as a blob using FileSaver.
-      var src = 'data:image/svg+xml;base64,' + btoa(self.svgHtml);
-      self.downloadHtml5(src);
+      // Save using blob and filesaver.js.
+      var blob = new Blob([self.svgHtml], {type: "image/svg+xml"});
+      saveAs(blob, self.settings.filename + '.' + self.settings.format);
     };
 
     /*
@@ -152,26 +154,11 @@
         context = canvas.getContext('2d');
         context.drawImage(image, 0, 0);
 
-        // Trigger a file download.
-        self.downloadHtml5(canvas.toDataURL('image/png'));
+	// Save using canvas-toBlob.js.
+	canvas.toBlob(function(blob){
+	  saveAs(blob, self.settings.filename + '.' + self.settings.format);
+	});
       };
-    };
-
-    /*
-     * Trigger a download using the html5 download attribute.
-     */
-    self.downloadHtml5 = function (href) {
-      // This doesn't work if we use jQuery to create the el so vanilla JS it is.
-      var a = document.createElement('a');
-      // Define the filename in the 'save as' box (also triggers the save as box)
-      a.download = self.settings.filename + '.' + self.settings.format;
-      // Add the contents of what we are saving.
-      a.href = href;
-      // Needs to be in the dom to trigger a click.
-      document.body.appendChild(a);
-      a.click();
-      // Cleanup afterwards. TODO: Test lots to ensure doesn't affect download.
-      a.remove();
     };
 
     /*
@@ -183,6 +170,13 @@
       // If not passed validation, clicking the button returns an error msg.
       if (self.settings.valid === false) {
         return alert(self.settings.errorMsg);
+      }
+
+      // Safari currently doesn't support filesaver
+      // @see https://github.com/eligrey/FileSaver.js/issues/12
+      // So as a workaround we instruct the user on how to download.
+      if (self.isSafari()) {
+	alert(self.settings.manualDownloadMessage.replace('{format}', self.settings.format));
       }
 
       // Get the html for the svg.
@@ -197,6 +191,13 @@
           self.savePNG();
           break;
       }
+    };
+
+    /*
+     * Safari check due to issue with filesaver.
+     */
+    self.isSafari = function () {
+      return navigator.vendor && navigator.vendor.indexOf('Apple') > -1 && navigator.userAgent && !navigator.userAgent.match('CriOS');
     };
 
     /*
