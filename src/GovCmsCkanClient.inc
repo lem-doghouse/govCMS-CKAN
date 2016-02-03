@@ -16,6 +16,8 @@
  * - request_time (int) The time of the request to the API.
  * - code: (int) Response code from the request to the API http request.
  * - status: (string) Status message from the API http request.
+ * - resource: (string) The requested resource.
+ * - query: (array) The query params passed to the resource.
  * - data: (mixed) An object or array response from the API request.
  */
 
@@ -181,6 +183,8 @@ class GovCmsCkanClient {
       'code' => $this->response->code,
       'status' => $this->response->status_message,
       'url' => $this->url,
+      'resource' => $this->resource,
+      'query' => $this->query,
       'data' => (object) array(),
     );
 

@@ -55,10 +55,10 @@ function govcms_ckan_display_library() {
         'preprocess' => FALSE,
       ),
       array(
-        'type' => 'external',
-        'data' => 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js',
-        'group' => JS_LIBRARY,
-        'preprocess' => FALSE,
+	'type' => 'external',
+	'data' => 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js',
+	'group' => JS_LIBRARY,
+	'preprocess' => FALSE,
       ),
       array(
 	'type' => 'external',
