@@ -86,10 +86,11 @@
       grid: null,
       xLabel: null,
       yLabel: null,
+      stacked: false,
       // The data for the chart.
       data: {},
       // Data attributes automatically parsed from the table element.
-      dataAttributes: ['type', 'rotated', 'labels', 'defaultView', 'grid', 'xLabel', 'yLabel'],
+      dataAttributes: ['type', 'rotated', 'labels', 'defaultView', 'grid', 'xLabel', 'yLabel', 'stacked'],
       // Chart views determine what is displaying chart vs table.
       chartViewName: 'chart',
       tableViewName: 'table',
@@ -338,10 +339,9 @@
     // Type of chart is stored in the data.
     settings.data.type = settings.type;
 
-    // Stacked graphs are just bar graphs that are grouped,
-    // so we change the type and add the grouping.
-    if (settings.type === 'stacked') {
-      settings.data.type = 'bar';
+    // Stacked can be applied to most charts, the stack order used is
+    // the column order.
+    if (settings.stacked) {
       settings.data.groups = [settings.data.rows[0]];
     }
 

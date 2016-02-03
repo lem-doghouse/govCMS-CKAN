@@ -90,6 +90,7 @@ function govcms_ckan_display_examples_page() {
         'data-grid' => isset($example['grid']) ? $example['grid'] : '',
         'data-xLabel' => isset($example['xLabel']) ? $example['xLabel'] : '',
         'data-yLabel' => isset($example['yLabel']) ? $example['yLabel'] : '',
+	'data-stacked' => isset($example['stacked']) ? $example['stacked'] : '',
         'class' => array('table-chart-examples'),
       ),
     ));
@@ -206,6 +207,22 @@ function _govcms_ckan_display_examples_data() {
         ),
       ),
     ),
+    'spline_area_stacked' => array(
+      'title' => 'Spline Area Chart Stacked (vertical)',
+      'type' => 'area-spline',
+      'lib' => 'c3js',
+      'rotated' => 'false',
+      'grid' => 'y',
+      'stacked' => 'true',
+      'data' => array(
+	'data1' => array(
+	  'data' => array(30, 200, 100, 400, 150, 250),
+	),
+	'data2' => array(
+	  'data' => array(50, 20, 10, 40, 15, 25),
+	),
+      ),
+    ),
     'area' => array(
       'title' => 'Area Chart (vertical)',
       'type' => 'area',
@@ -267,10 +284,11 @@ function _govcms_ckan_display_examples_data() {
     ),
     'bar_stacked' => array(
       'title' => 'Bar Chart Stacked - Table default view (vertical)',
-      'type' => 'stacked',
+      'type' => 'bar',
       'lib' => 'c3js',
       'rotated' => 'false',
       'defaultView' => 'table',
+      'stacked' => 'true',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
@@ -282,9 +300,10 @@ function _govcms_ckan_display_examples_data() {
     ),
     'bar_stacked_horizontal' => array(
       'title' => 'Bar Chart Stacked (horizontal)',
-      'type' => 'stacked',
+      'type' => 'bar',
       'lib' => 'c3js',
       'rotated' => 'true',
+      'stacked' => 'true',
       'data' => array(
         'data1' => array(
           'data' => array(30, 200, 100, 400, 150, 250),
