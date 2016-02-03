@@ -6,9 +6,191 @@
  */
 
 /**
+ * Implements hook_field_schema().
+ */
+function govcms_ckan_field_schema($field) {
+  $schema = array();
+  switch ($field['type']) {
+    case 'ckan_dataset':
+      $schema['columns'] = array(
+        'dataset_id' => array(
+          'type' => 'varchar',
+          'description' => 'The unique identifier of the dataset.',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+        'dataset_title' => array(
+          'type' => 'varchar',
+          'description' => 'The title of the dataset.',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+      );
+      break;
+    case 'ckan_graph_type':
+      $schema['columns'] = array(
+        'type' => array(
+          'type' => 'varchar',
+          'description' => 'The type of graph',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+        'orientation' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ),
+        'xaxis_label' => array(
+          'type' => 'varchar',
+          'description' => 'The x-axis graph label',
+          'length' => '255',
+          'not null' => FALSE,
+          'default' => '',
+        ),
+        'yaxis_label' => array(
+          'type' => 'varchar',
+          'description' => 'The y-axis graph label',
+          'length' => '255',
+          'not null' => FALSE,
+          'default' => '',
+        ),
+      );
+      break;
+  }
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function govcms_ckan_install() {
+  module_load_include('inc', 'node', 'content_types');
+  db_update('system')
+    ->condition('name', 'govcms_ckan')
+    ->condition('type', 'module')
+    ->fields(array('weight' => -1))
+    ->execute();
+
+  // Create the graph type.
+  $graph_type = array(
+    'type' => 'ckan_graph',
+    'name' => st('CKAN Graph'),
+    'base' => 'node_content',
+    'description' => st('Create a new graph that can be attach to a node or wysiwyg.'),
+    'custom' => TRUE,
+    'modified' => TRUE,
+    'locked' => FALSE,
+  );
+
+  $graph_type = node_type_set_defaults($graph_type);
+  node_type_save($graph_type);
+
+  // We enable the CKAN graph by default.
+  variable_set('govcms_ckan_graph_node_ckan_graph', TRUE);
+
+  govcms_ckan_create_graph_data_field('node', 'ckan_graph');
+  govcms_ckan_create_graph_type_field('node', 'ckan_graph');
+}
+
+/**
+ * Create the CKAN dataset field and binds it to a bundle.
+ *
+ * @param string $entity_type
+ *   The entity type name.
+ * @param string $bundle
+ *   The name of the bundle where we want to attach the ckan data field.
+ */
+function govcms_ckan_create_graph_data_field($entity_type = '', $bundle = '') {
+
+  if (empty($entity_type) || empty($bundle)) {
+    return;
+  }
+
+  $field_name = 'ckan_graph_data';
+  if (is_null(field_info_field($field_name))) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'ckan_dataset',
+      'cardinality' => '-1',
+    );
+    $field = field_create_field($field);
+  }
+
+  // Creates the field instance and bind it to the bundle.
+  if (is_null(field_info_instance($entity_type, $field_name, $bundle))) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle,
+      'description' => 'A field for storing a reference to a CKAN dataset',
+      'label' => 'Data',
+      'required' => 1,
+      'active' => 1,
+      'widget' => array(
+        'type' => 'ckan_dataset',
+      ),
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Create the CKAN graph type field and binds it to bundle.
+ *
+ * @param string $entity_type
+ *   The entity type name.
+ * @param string $bundle
+ *   The name of the bundle where we want to attach the ckan graph type field.
+ */
+function govcms_ckan_create_graph_type_field($entity_type = '', $bundle = '') {
+  $field_name = 'ckan_graph_type';
+
+  if (is_null(field_info_field($field_name))) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'ckan_graph_type',
+    );
+    $field = field_create_field($field);
+  }
+
+  // Creates the field instance and bind it to the bundle.
+  if (is_null(field_info_instance($entity_type, $field_name, $bundle))) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle,
+      'description' => 'A field for for storing CKAN graph type',
+      'label' => 'Graph type',
+      'required' => 1,
+      'description' => '',
+      'default_value' => NULL,
+      'widget' => array(
+        'type' => 'ckan_graph_type',
+      ),
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
  * Implements hook_uninstall().
  */
 function govcms_ckan_uninstall() {
   variable_del('govcms_ckan_endpoint_url');
   variable_del('govcms_ckan_api_key');
+
+  foreach (node_type_get_names() as $type => $name) {
+    variable_del('govcms_ckan_graph_node_' . $type);
+  }
+
+  // We delete the CKAN graph content type if there is no existing nodes.
+  $query = new EntityFieldQuery();
+  $results = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'ckan_graph')
+    ->range(0, 1)
+    ->execute();
+  if (!$results) {
+    node_type_delete('ckan_graph');
+    drupal_flush_all_caches();
+  }
 }
