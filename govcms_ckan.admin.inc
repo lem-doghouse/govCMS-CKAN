@@ -22,7 +22,7 @@ function govcms_ckan_settings_form() {
     '#weight' => 0,
     '#size' => 100,
     '#required' => TRUE,
-    '#default_value' => variable_get('govcms_ckan_endpoint_url', '')
+    '#default_value' => variable_get('govcms_ckan_endpoint_url', ''),
   );
 
   $form['govcms_ckan_api_key'] = array(
@@ -31,7 +31,7 @@ function govcms_ckan_settings_form() {
     '#description' => t('Specify the API key.'),
     '#weight' => 1,
     '#size' => 100,
-    '#default_value' => variable_get('govcms_ckan_api_key', '')
+    '#default_value' => variable_get('govcms_ckan_api_key', ''),
   );
 
   $form['#validate'][] = 'govcms_ckan_settings_form_validate';
@@ -45,15 +45,25 @@ function govcms_ckan_settings_form() {
  * @see govcms_ckan_settings_form()
  */
 function govcms_ckan_settings_form_validate($form, &$form_state) {
-  $url = $form_state['values']['govcms_ckan_endpoint_url'] . '/api/3/action/package_list?limit=5';
-  $response = drupal_http_request(check_url($url));
+  // Get a client instance.
+  $client = govcms_ckan_client();
 
-  $data = NULL;
-  if (!empty($response->data)) {
-    $data = json_decode($response->data);
-  }
+  // Test the connection using action/package_list resource.
+  $response_code = $client->testConnection(
+    $form_state['values']['govcms_ckan_endpoint_url'],
+    'action/package_list',
+    array('limit' => 1),
+    $form_state['values']['govcms_ckan_api_key']
+  );
 
-  if (!isset($data->success)) {
-    form_set_error('govcms_ckan_endpoint_url', t('Could not establish a connection to the endpoint.'));
+  // If we don't get a 200 (success), we have problems connecting.
+  if ($response_code != 200) {
+    if ($response_code == 403) {
+      form_set_error('govcms_ckan_api_key', t('API return "Not Authorised" please check your API key.'));
+    }
+    else {
+      form_set_error('govcms_ckan_endpoint_url', t('Could not establish a connection to the endpoint. Error: @code',
+	array('@code' => $response_code)));
+    }
   }
 }
