@@ -22,6 +22,14 @@ function govcms_ckan_menu() {
     'access arguments' => array('administer govcms ckan'),
     'file' => 'govcms_ckan.admin.inc',
   );
+  // Temporary demo page, will be removed after integration complete.
+  $items['govcms-ckan/demo-page'] = array(
+    'title' => 'govCMS CKAN Demo Page',
+    'page callback' => 'govcms_ckan_demo_page',
+    'access arguments' => array('access content'),
+    'file' => 'govcms_ckan.demo.inc',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -261,5 +269,7 @@ function govcms_ckan_field_formatter_view($entity_type, $entity, $field, $instan
  */
 function govcms_ckan_client() {
   module_load_include('inc', 'govcms_ckan', 'src/GovCmsCkanClient');
-  return new GovCmsCkanClient();
+  $base_url = variable_get('govcms_ckan_endpoint_url', '');
+  $api_key = variable_get('govcms_ckan_api_key', '');
+  return new GovCmsCkanClient($base_url, $api_key);
 }

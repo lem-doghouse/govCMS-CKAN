@@ -5,7 +5,7 @@
  *
  * Basic Example Usage.
  * --------------------
- * $client = new GovCmsCkanClient();
+ * $client = new GovCmsCkanClient($base_url, $api_key);
  * $client->get('action/package_show', array('id' => 'fd49dc83f86f'));
  *
  * Response Object.
@@ -70,34 +70,36 @@ class GovCmsCkanClient {
   private $cacheExpiryFail = 86400;
 
   /**
-   * Constructor.
+   * GovCmsCkanClient constructor.
+   *
+   * @param string $base_url
+   *   The API base url for this endpoint.
+   * @param string $api_key
+   *   The API key for this endpoint.
+   * @param int $api_version
+   *   The version of the API to use.
    */
-  public function __construct() {
-    // Populate settings from Drupal variables.
-    $this->getSettings();
+  public function __construct($base_url, $api_key = NULL, $api_version = 3) {
+    $this->apiUrl = $base_url;
+    $this->apiKey = $api_key;
+    $this->apiVersion = $api_version;
   }
 
   /**
    * Test an endpoint is functional.
    *
-   * @param string $endpoint
-   *   The API endpont with no trailing slash.
    * @param string $resource
    *   The resource we are requesting.
    * @param array $query
    *   A key value pair of url paramaters.
-   * @param string $api_key
-   *   The api key for the endpoint (if required).
-   * @param int $api_version
-   *   The API version to test against.
    *
    * @return int
    *   The response code from the resource, 200 is success.
    */
-  public function testConnection($endpoint, $resource, $query = array(), $api_key = NULL, $api_version = 3) {
+  public function testConnection($resource, $query = array()) {
     // Build a test url.
     $test_url = url(
-      $endpoint . sprintf($this->apiPath, $api_version) . $resource,
+      $this->apiUrl . $this->apiPath() . $resource,
       array(
 	'external' => TRUE,
 	'query' => $query,
@@ -105,8 +107,8 @@ class GovCmsCkanClient {
 
     // Add authentication.
     $options = array();
-    if (!is_null($api_key)) {
-      $options = array('headers' => array('Authorization' => $api_key));
+    if (!empty($this->apiKey)) {
+      $options = array('headers' => array('Authorization' => $this->apiKey));
     }
 
     // Return TRUE if response code is 200 (OK).
@@ -138,19 +140,11 @@ class GovCmsCkanClient {
   }
 
   /**
-   * Populate the settings using drupal variables.
-   */
-  private function getSettings() {
-    $this->apiUrl = variable_get('govcms_ckan_endpoint_url', '');
-    $this->apiKey = variable_get('govcms_ckan_api_key', '');
-  }
-
-  /**
    * Fetch CKAN data.
    */
   private function fetch() {
     $this->url = url(
-      $this->apiUrl . sprintf($this->apiPath, $this->apiVersion) . $this->resource,
+      $this->apiUrl . $this->apiPath() . $this->resource,
       array(
 	'external' => TRUE,
 	'query' => $this->query,
@@ -207,6 +201,16 @@ class GovCmsCkanClient {
   }
 
   /**
+   * Get the API path with the correct api version number.
+   *
+   * @return string
+   *   The API path with version number included. Eg. '/api/3/'.
+   */
+  private function apiPath() {
+    return sprintf($this->apiPath, $this->apiVersion);
+  }
+
+  /**
    * Handle errors.
    */
   private function errorLogger() {
@@ -222,10 +226,10 @@ class GovCmsCkanClient {
   }
 
   /**
-   * Get cached request.
+   * Populate the responseObject with the cached version if exists.
    *
-   * @return mixed
-   *   If a vaild cache hit found, it is returned, else FALSE on no cache found.
+   * @return bool
+   *   TRUE if successful cache get, FALSE if not.
    */
   private function cacheDataGet() {
     $cache = cache_get($this->url);
