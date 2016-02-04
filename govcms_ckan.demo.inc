@@ -22,7 +22,8 @@ function govcms_ckan_demo_page() {
   $output[] = '<p>Dataset: ' . $dataset . '</p>';
   $output[] = '<p><strong>' . l(t('> Go to dataset on data.gov.au'), $public_url) . '</strong></p>';
 
-  // Parse response into tabular data.
+  // Get the Keys to use in the result set. These will be configurable via
+  // admin but for now, hard coded for this dataset.
   $keys = _govcms_ckan_demo_get_keys();
 
   // Parse the records into tablular data.
@@ -47,23 +48,23 @@ function govcms_ckan_demo_page() {
     foreach ($chart_types as $type) {
       // Attributes for chart usage.
       $table_defaults = array(
-	'attributes' => array(
-	  'class' => array($chart_class),
-	  'data-type' => $type,
-	  'data-stacked' => 'true',
-	  'data-grid' => 'y',
-	  'data-xLabel' => 'Type',
-	  'data-yLabel' => 'Amount',
-	),
+        'attributes' => array(
+          'class' => array($chart_class),
+          'data-type' => $type,
+          'data-stacked' => 'true',
+          'data-grid' => 'y',
+          'data-xLabel' => 'Type',
+          'data-yLabel' => 'Amount',
+        ),
       );
 
       // This is RAW AS, definately not permanent.
       foreach ($tables as $year => $table_vars) {
-	$output[] = '<div class="year-set" id="year-set-' . $year . '"><br />';
-	$output[] = '<h3>' . $year . ' (' . ucwords($type) . ' chart)</h3>';
-	$table_vars = array_merge($table_vars, $table_defaults);
-	$output[] = theme('table', $table_vars);
-	$output[] = '<br /></div>';
+        $output[] = '<div class="year-set" id="year-set-' . $year . '"><br />';
+        $output[] = '<h3>' . $year . ' (' . ucwords($type) . ' chart)</h3>';
+        $table_vars = array_merge($table_vars, $table_defaults);
+        $output[] = theme('table', $table_vars);
+        $output[] = '<br /></div>';
       }
     }
 
@@ -105,10 +106,10 @@ function _govcms_ckan_demo_parse_records($record_set, $keys = array(), $label_ke
     // Add keys as header.
     foreach ($keys as $key) {
       if ($label_key == $key) {
-	$header[] = array('data' => 'Type', 'data-xLabel' => 'true');
+        $header[] = array('data' => 'Type', 'data-xLabel' => 'true');
       }
       else {
-	$header[] = $key;
+        $header[] = $key;
       }
     }
 
@@ -117,12 +118,12 @@ function _govcms_ckan_demo_parse_records($record_set, $keys = array(), $label_ke
       $row = array();
 
       foreach ($keys as $key) {
-	if ($label_key == $key) {
-	  $row[] = array('data' => $record->{$key}, 'data-xLabel' => 'true');
-	}
-	else {
-	  $row[] = $record->{$key};
-	}
+        if ($label_key == $key) {
+          $row[] = array('data' => $record->{$key}, 'data-xLabel' => 'true');
+        }
+        else {
+          $row[] = $record->{$key};
+        }
       }
 
       // Add to rows array.
@@ -180,17 +181,17 @@ function _govcms_ckan_demo_parse_records_alt($record_set, $keys = array(), $labe
       // Make the rows from the keys.
       foreach ($keys as $row_num => $key) {
 
-	// Add all rows that are not the label key.
-	if ($label_key != $key) {
+        // Add all rows that are not the label key.
+        if ($label_key != $key) {
 
-	  // Keys form the xLabel columns.
-	  if ($col_num == 0) {
-	    $rows[$row_num][0] = array('data' => $key, 'data-xLabel' => 'true');
-	  }
+          // Keys form the xLabel columns.
+          if ($col_num == 0) {
+            $rows[$row_num][0] = array('data' => $key, 'data-xLabel' => 'true');
+          }
 
-	  // Add the data to the correct row/column.
-	  $rows[$row_num][$data_col_num] = $record->{$key};
-	}
+          // Add the data to the correct row/column.
+          $rows[$row_num][$data_col_num] = $record->{$key};
+        }
       }
 
     }

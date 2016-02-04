@@ -175,10 +175,10 @@
      */
     self.parseXLabel = function($cell) {
       if ($cell.data('xLabel') !== undefined && $cell.data('xLabel')) {
-	// Header cell gets th axis being used (x) otherwise label is the cell html.
-	var label = $cell.is('th') ? 'x' : $cell.html();
-	self.settings.xLabels.push(label);
-	return true;
+        // Header cell gets th axis being used (x) otherwise label is the cell html.
+        var label = $cell.is('th') ? 'x' : $cell.html();
+        self.settings.xLabels.push(label);
+        return true;
       }
       return false;
     };
@@ -194,19 +194,19 @@
 
       // On each row.
       $('tr', self.settings.$dom).each(function (r, row) {
-	col = 0;
+        col = 0;
 
         // On each cell.
         $('th,td', row).each(function (c, cell) {
           $cell = $(cell);
 
-	  // If a X label we abort don't parse this cell any further.
-	  if (self.parseXLabel($cell) === true) {
-	    return;
-	  }
+          // If a X label we abort don't parse this cell any further.
+          if (self.parseXLabel($cell) === true) {
+            return;
+          }
 
-	  // Create our data set if doesn't exists yet.
-	  columns[col] = columns[col] !== undefined ? columns[col] : [];
+          // Create our data set if doesn't exists yet.
+          columns[col] = columns[col] !== undefined ? columns[col] : [];
 
           // If dealing with the table headers.
           if ($cell.is('th')) {
@@ -218,8 +218,8 @@
           }
 
           // Add the rows to the correct data set.
-	  columns[col].push(val);
-	  col++;
+          columns[col].push(val);
+          col++;
 
         });
 
@@ -438,7 +438,7 @@
         options.grid = {y: {show: true}};
         break;
     }
-console.log(options);
+
     // Create chart.
     c3.generate(options);
   };
