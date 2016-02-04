@@ -15,12 +15,20 @@ define('GOVCMS_CKAN_CONFIG_PATH', 'admin/config/services/govcms-ckan');
  */
 function govcms_ckan_menu() {
   $items[GOVCMS_CKAN_CONFIG_PATH] = array(
-    'title' => t('govCMS CKAN'),
-    'description' => t('Settings for govCMS CKAN'),
+    'title' => 'govCMS CKAN',
+    'description' => 'Settings for govCMS CKAN',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('govcms_ckan_settings_form'),
     'access arguments' => array('administer govcms ckan'),
     'file' => 'govcms_ckan.admin.inc',
+  );
+  // Temporary demo page, will be removed after integration complete.
+  $items['govcms-ckan/demo-page'] = array(
+    'title' => 'govCMS CKAN Demo Page',
+    'page callback' => 'govcms_ckan_demo_page',
+    'access arguments' => array('access content'),
+    'file' => 'govcms_ckan.demo.inc',
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
@@ -254,4 +262,14 @@ function govcms_ckan_field_formatter_view($entity_type, $entity, $field, $instan
   }
 
   return $element;
+}
+
+/**
+ * Helper to return a new instance of the CKAN Client.
+ */
+function govcms_ckan_client() {
+  module_load_include('inc', 'govcms_ckan', 'src/GovCmsCkanClient');
+  $base_url = variable_get('govcms_ckan_endpoint_url', '');
+  $api_key = variable_get('govcms_ckan_api_key', '');
+  return new GovCmsCkanClient($base_url, $api_key);
 }
