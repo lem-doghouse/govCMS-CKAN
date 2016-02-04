@@ -36,3 +36,191 @@ function govcms_ckan_permission() {
     ),
   );
 }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function govcms_ckan_form_node_type_form_alter(&$form, $form_state) {
+  if (isset($form['type'])) {
+    $form['ckan_graph'] = array(
+      '#title' => t('CKAN Graph'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#group' => 'additional_settings',
+      '#weight' => -100,
+    );
+    $form['ckan_graph']['govcms_ckan_graph_node'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable govCMS CKAN graph functionality.'),
+      '#description' => t('Allows this content type to be displayed as CKAN Graph.'),
+      '#default_value' => variable_get('govcms_ckan_graph_node_' . $form['#node_type']->type, FALSE),
+    );
+  }
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function govcms_ckan_field_info() {
+  return array(
+    'ckan_dataset' => array(
+      'label' => t('CKAN Dataset'),
+      'description' => t('This field stores a reference to a CKAN dataset.'),
+      'settings' => array(
+        'allowed_values' => array(),
+        'allowed_values_function' => ''
+      ),
+      'default_widget' => 'ckan_dataset',
+      'default_formatter' => 'ckan_dataset_default',
+    ),
+    'ckan_graph_type' => array(
+      'label' => t('CKAN Graph Type'),
+      'description' => t("This field stores CKAN graph type."),
+      'settings' => array(
+        'allowed_values' => array(),
+        'allowed_values_function' => ''
+      ),
+      'default_widget' => 'ckan_graph_type',
+      'default_formatter' => 'ckan_graph_type_default',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function govcms_ckan_field_is_empty($item, $field) {
+  switch ($field['type']) {
+    case 'ckan_dataset':
+      return empty($item['dataset_id']) || empty($item['dataset_title']);
+      break;
+    case 'ckan_graph_type':
+      return empty($item['type']);
+      break;
+  }
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function govcms_ckan_field_widget_info() {
+  return array(
+    'ckan_dataset' => array(
+      'label' => t('CKAN Dataset'),
+      'field types' => array('ckan_dataset'),
+    ),
+    'ckan_graph_type' => array(
+      'label' => t('CKAN Graph Type'),
+      'field types' => array('ckan_graph_type'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function govcms_ckan_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  // We make sure that we're dealing with CKAN dataset field.
+  switch ($instance['widget']['type']) {
+    case 'ckan_dataset':
+      $fields = array(
+        'dataset_id' => t('Dataset ID'),
+        'dataset_title' => t('Dataset title'),
+      );
+
+      // Loop through each field and create the appropriate widget.
+      foreach ($fields as $key => $label) {
+        $element[$key] = array(
+          '#type' => 'textfield',
+          '#title' => $label,
+          '#required' => $element['#required'],
+          '#default_value' => isset($items[$delta][$key]) ? $items[$delta][$key] : '',
+        );
+      }
+      break;
+
+    case 'ckan_graph_type':
+      // We list the default supported graph types.
+      $graph_type = array(
+        'c3js:area' => t('Area Chart'),
+        'c3js:bar' => t('Bar Chart'),
+        'c3js:stacked' => t('Bar Chart Stacked'),
+        'c3js:line' => t('Line Chart'),
+        'c3js:spline' => t('Spline Chart'),
+        'c3js:area-spline' => t('Spline Area Chart'),
+      );
+
+      $graph_orientation = array(
+        1 => t('Horizontal'),
+        0 => t('Vertical'),
+      );
+
+      $fields = array(
+        'type' => array(
+          'label' => t('Type'),
+          'widget' => 'select',
+          'required' => TRUE,
+          'options' => $graph_type,
+        ),
+        'orientation' => array(
+          'label' => t('Orientation'),
+          'widget' => 'select',
+          'required' => FALSE,
+          'options' => $graph_orientation,
+        ),
+        'xaxis_label' => array(
+          'label' => t('x-Axis label'),
+          'widget' => 'textfield',
+          'required' => FALSE,
+          'options' => FALSE,
+        ),
+        'yaxis_label' => array(
+          'label' => t('y-Axis label'),
+          'widget' => 'textfield',
+          'required' => FALSE,
+          'options' => FALSE,
+        ),
+      );
+
+      // Loop through each field and create the appropriate widget.
+      foreach ($fields as $key => $item) {
+        $element[$key] = array(
+          '#type' => $item['widget'],
+          '#title' => $item['label'],
+          '#required' => $item['required'],
+          '#default_value' => isset($items[$delta][$key]) ? $items[$delta][$key] : '',
+        );
+
+        if (($item['options'])) {
+          $element[$key]['#options'] = $item['options'];
+        }
+      }
+      break;
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function govcms_ckan_field_formatter_info() {
+  return array(
+    'ckan_dataset_default' => array(
+      'label' => t('Default'),
+      'field types' => array('ckan_dataset'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function govcms_ckan_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  if ($display['type'] == 'ckan_dataset_default') {
+    foreach ($items as $delta => $item) {
+      $element[$delta]['#markup'] = $item['dataset_title'] . ' - ' . t($item['dataset_id']);
+    }
+  }
+  return $element;
+}
