@@ -10,8 +10,9 @@
  */
 function govcms_ckan_field_schema($field) {
   $schema = array();
+
   switch ($field['type']) {
-    case 'ckan_dataset':
+    case 'ckan_data':
       $schema['columns'] = array(
         'dataset_id' => array(
           'type' => 'varchar',
@@ -27,6 +28,7 @@ function govcms_ckan_field_schema($field) {
         ),
       );
       break;
+
     case 'ckan_graph_type':
       $schema['columns'] = array(
         'type' => array(
@@ -38,7 +40,7 @@ function govcms_ckan_field_schema($field) {
         'orientation' => array(
           'type' => 'int',
           'not null' => TRUE,
-          'default' => 1,
+          'default' => 0,
         ),
         'xaxis_label' => array(
           'type' => 'varchar',
@@ -57,6 +59,7 @@ function govcms_ckan_field_schema($field) {
       );
       break;
   }
+
   return $schema;
 }
 
@@ -93,41 +96,38 @@ function govcms_ckan_install() {
 }
 
 /**
- * Create the CKAN dataset field and binds it to a bundle.
+ * Creates the CKAN data field and attaches it to a bundle.
  *
  * @param string $entity_type
  *   The entity type name.
  * @param string $bundle
- *   The name of the bundle where we want to attach the ckan data field.
+ *   The bundle name.
  */
-function govcms_ckan_create_graph_data_field($entity_type = '', $bundle = '') {
-
-  if (empty($entity_type) || empty($bundle)) {
-    return;
-  }
-
+function govcms_ckan_create_graph_data_field($entity_type, $bundle) {
   $field_name = 'ckan_graph_data';
-  if (is_null(field_info_field($field_name))) {
+  $field_exists = (field_info_field($field_name) !== NULL);
+  $field_instance_exists = (field_info_instance($entity_type, $field_name, $bundle) !== NULL);
+
+  if (!$field_exists) {
     $field = array(
       'field_name' => $field_name,
-      'type' => 'ckan_dataset',
+      'type' => 'ckan_data',
       'cardinality' => '-1',
     );
     $field = field_create_field($field);
   }
 
-  // Creates the field instance and bind it to the bundle.
-  if (is_null(field_info_instance($entity_type, $field_name, $bundle))) {
+  if (!empty($field) && !$field_instance_exists) {
     $instance = array(
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
       'description' => 'A field for storing a reference to a CKAN dataset',
-      'label' => 'Data',
+      'label' => 'CKAN Data',
       'required' => 1,
       'active' => 1,
       'widget' => array(
-        'type' => 'ckan_dataset',
+        'type' => 'ckan_data',
       ),
     );
     field_create_instance($instance);
@@ -135,17 +135,19 @@ function govcms_ckan_create_graph_data_field($entity_type = '', $bundle = '') {
 }
 
 /**
- * Create the CKAN graph type field and binds it to bundle.
+ * Creates the CKAN graph type field and attaches it to a bundle.
  *
  * @param string $entity_type
  *   The entity type name.
  * @param string $bundle
- *   The name of the bundle where we want to attach the ckan graph type field.
+ *   The bundle name.
  */
-function govcms_ckan_create_graph_type_field($entity_type = '', $bundle = '') {
+function govcms_ckan_create_graph_type_field($entity_type, $bundle) {
   $field_name = 'ckan_graph_type';
+  $field_exists = (field_info_field($field_name) !== NULL);
+  $field_instance_exists = (field_info_instance($entity_type, $field_name, $bundle) !== NULL);
 
-  if (is_null(field_info_field($field_name))) {
+  if (!$field_exists) {
     $field = array(
       'field_name' => $field_name,
       'type' => 'ckan_graph_type',
@@ -153,17 +155,15 @@ function govcms_ckan_create_graph_type_field($entity_type = '', $bundle = '') {
     $field = field_create_field($field);
   }
 
-  // Creates the field instance and bind it to the bundle.
-  if (is_null(field_info_instance($entity_type, $field_name, $bundle))) {
+  if (!empty($field) && !$field_instance_exists) {
     $instance = array(
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
-      'description' => 'A field for for storing CKAN graph type',
-      'label' => 'Graph type',
+      'description' => 'A field for storing CKAN graph type',
+      'label' => 'CKAN Graph type',
       'required' => 1,
-      'description' => '',
-      'default_value' => NULL,
+      'active' => 1,
       'widget' => array(
         'type' => 'ckan_graph_type',
       ),
