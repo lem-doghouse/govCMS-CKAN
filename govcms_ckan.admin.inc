@@ -61,7 +61,7 @@ function govcms_ckan_settings_form_validate($form, &$form_state) {
     }
     else {
       form_set_error('govcms_ckan_endpoint_url', t('Could not establish a connection to the endpoint. Error: @code',
-	array('@code' => $response_code)));
+        array('@code' => $response_code)));
     }
   }
 }

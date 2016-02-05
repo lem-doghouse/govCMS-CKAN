@@ -88,7 +88,11 @@
       yLabel: null,
       stacked: false,
       // The data for the chart.
+      columns: [],
       data: {},
+      group: [],
+      // The labels to show on the x axis ticks.
+      xLabels: [],
       // Data attributes automatically parsed from the table element.
       dataAttributes: ['type', 'rotated', 'labels', 'defaultView', 'grid', 'xLabel', 'yLabel', 'stacked'],
       // Chart views determine what is displaying chart vs table.
@@ -146,14 +150,37 @@
       if ($th.data('color') !== undefined) {
         self.settings.palette[col] = $th.data('color');
       }
+
       // Currently only style option is dashed and will only work with line.
       // @see http://c3js.org/samples/simple_regions.html
       if ($th.data('style') !== undefined && $th.data('style') === 'dashed') {
         self.settings.styles.push({set: $th.html(), style: $th.data('style')});
       }
 
+      // Create a group of headings (used for stacking).
+      self.settings.group.push($th.html());
+
       // Return self for chaining.
       return self;
+    };
+
+    /*
+     * Parse the cells to see if they are a X label cell.
+      *
+     * @param $cell
+     *   Table cell jQuery object.
+     *
+     * @returns {boolean}
+     *   true if is a X label, false if not.
+     */
+    self.parseXLabel = function($cell) {
+      if ($cell.data('xLabel') !== undefined && $cell.data('xLabel')) {
+        // Header cell gets th axis being used (x) otherwise label is the cell html.
+        var label = $cell.is('th') ? 'x' : $cell.html();
+        self.settings.xLabels.push(label);
+        return true;
+      }
+      return false;
     };
 
     /*
@@ -163,15 +190,23 @@
      * that data set. All other values in that column are assumed to be integers.
      */
     self.parseData = function () {
-      var rows = [], val, $cell;
+      var columns = [], val, $cell, col;
 
       // On each row.
       $('tr', self.settings.$dom).each(function (r, row) {
-        rows[r] = [];
+        col = 0;
 
         // On each cell.
         $('th,td', row).each(function (c, cell) {
           $cell = $(cell);
+
+          // If a X label we abort don't parse this cell any further.
+          if (self.parseXLabel($cell) === true) {
+            return;
+          }
+
+          // Create our data set if doesn't exists yet.
+          columns[col] = columns[col] !== undefined ? columns[col] : [];
 
           // If dealing with the table headers.
           if ($cell.is('th')) {
@@ -183,15 +218,15 @@
           }
 
           // Add the rows to the correct data set.
-          rows[r].push(val);
+          columns[col].push(val);
+          col++;
+
         });
 
       });
 
       // Add parsed data rows to settings.
-      self.settings.data = {
-        rows: rows
-      };
+      self.settings.columns = columns;
 
       // Return self for chaining.
       return self;
@@ -339,10 +374,13 @@
     // Type of chart is stored in the data.
     settings.data.type = settings.type;
 
+    // Placeholder for the data columns.
+    settings.data.columns = [];
+
     // Stacked can be applied to most charts, the stack order used is
     // the column order.
     if (settings.stacked) {
-      settings.data.groups = [settings.data.rows[0]];
+      settings.data.groups = [settings.group];
     }
 
     // Apply styles (currently only works with lines and dashes)
@@ -353,18 +391,35 @@
       });
     }
 
+    // Define the axis settings.
+    var axis = {
+      rotated: settings.rotated,
+      x: {label: settings.xLabel},
+      y: {label: settings.yLabel}
+    };
+
+    // Add X axis labels.
+    if (settings.xLabels.length) {
+      settings.data.x = 'x';
+      settings.data.columns.push(settings.xLabels);
+      // this needed to load string x value
+      axis.x.type = 'category';
+    };
+
     // Show labels on data points?
     settings.data.labels = settings.labels;
+
+    // Add the data columns.
+    $(settings.columns).each(function (i, col) {
+      console.log(col);
+      settings.data.columns.push(col);
+    });
 
     // Options structure to be passed to c3
     var options = {
       bindto: '#' + settings.chartDomId,
       data: settings.data,
-      axis: {
-        rotated: settings.rotated,
-        x: {label: settings.xLabel},
-        y: {label: settings.yLabel}
-      },
+      axis: axis,
       color: {
         pattern: settings.palette
       },
