@@ -29,6 +29,8 @@
    * -- data-color: Hex colour, alternative to using palette on the table element.
    * -- data-style: The style for the line (dashed, solid)
    * - Each column forms a data set, Table headings can be strings but table values must be Ints.
+   * -- If a tbody row has a th (scope=row), this will be used to form the x axis tick labels.
+   * -- To ignore a thead th (eg placeholder for a label col) use the data-placeholder=true attr.
    *
    * Chart Implementations.
    * ----------------------
@@ -92,7 +94,7 @@
       data: {},
       group: [],
       // The labels to show on the x axis ticks.
-      xLabels: [],
+      xLabels: ['x'],
       // Data attributes automatically parsed from the table element.
       dataAttributes: ['type', 'rotated', 'labels', 'defaultView', 'grid', 'xLabel', 'yLabel', 'stacked'],
       // Chart views determine what is displaying chart vs table.
@@ -144,43 +146,32 @@
 
     /*
      * Parse additional settings from table headings.
+     *
+     * @param $cell
+     *   The cell jQuery object.
+     * @param col
+     *   The column number.
+     *
+     * @return string
+     *   The value for this cell.
      */
-    self.parseTableHeading = function(col, $th) {
+    self.parseTableHeading = function ($cell, col) {
       // Override colour for this data set.
-      if ($th.data('color') !== undefined) {
-        self.settings.palette[col] = $th.data('color');
+      if ($cell.data('color') !== undefined) {
+        self.settings.palette[col] = $cell.data('color');
       }
 
       // Currently only style option is dashed and will only work with line.
       // @see http://c3js.org/samples/simple_regions.html
-      if ($th.data('style') !== undefined && $th.data('style') === 'dashed') {
-        self.settings.styles.push({set: $th.html(), style: $th.data('style')});
+      if ($cell.data('style') !== undefined && $cell.data('style') === 'dashed') {
+        self.settings.styles.push({set: $cell.html(), style: $cell.data('style')});
       }
 
       // Create a group of headings (used for stacking).
-      self.settings.group.push($th.html());
+      self.settings.group.push($cell.html());
 
-      // Return self for chaining.
-      return self;
-    };
-
-    /*
-     * Parse the cells to see if they are a X label cell.
-      *
-     * @param $cell
-     *   Table cell jQuery object.
-     *
-     * @returns {boolean}
-     *   true if is a X label, false if not.
-     */
-    self.parseXLabel = function($cell) {
-      if ($cell.data('xLabel') !== undefined && $cell.data('xLabel')) {
-        // Header cell gets th axis being used (x) otherwise label is the cell html.
-        var label = $cell.is('th') ? 'x' : $cell.html();
-        self.settings.xLabels.push(label);
-        return true;
-      }
-      return false;
+      // Return the value for this cell.
+      return $cell.html();
     };
 
     /*
@@ -190,32 +181,33 @@
      * that data set. All other values in that column are assumed to be integers.
      */
     self.parseData = function () {
-      var columns = [], val, $cell, col;
+      var columns = [], val, $cell, col, isHeader;
 
       // On each row.
       $('tr', self.settings.$dom).each(function (r, row) {
         col = 0;
+        isHeader = $(row).parent().is('thead');
 
         // On each cell.
         $('th,td', row).each(function (c, cell) {
           $cell = $(cell);
 
-          // If a X label we abort don't parse this cell any further.
-          if (self.parseXLabel($cell) === true) {
+          // Don't process placeholder header cells (th used for row headers).
+          if (isHeader && $cell.data('placeholder') === true) {
+            return;
+          }
+
+          // If a row header, the parser deals with it and we skip to the next cell.
+          if ($cell.is('th') && !isHeader) {
+            self.settings.xLabels.push($cell.html());
             return;
           }
 
           // Create our data set if doesn't exists yet.
-          columns[col] = columns[col] !== undefined ? columns[col] : [];
+          columns[col] = columns[col] || [];
 
           // If dealing with the table headers.
-          if ($cell.is('th')) {
-            val = $cell.html();
-            self.parseTableHeading(c, $cell);
-          } else {
-            // Cell values should always be an Int.
-            val = parseInt($cell.html());
-          }
+          val = isHeader === true ? self.parseTableHeading($cell, c) : parseInt($cell.html());
 
           // Add the rows to the correct data set.
           columns[col].push(val);
@@ -411,7 +403,6 @@
 
     // Add the data columns.
     $(settings.columns).each(function (i, col) {
-      console.log(col);
       settings.data.columns.push(col);
     });
 
