@@ -273,3 +273,11 @@ function govcms_ckan_client() {
   $api_key = variable_get('govcms_ckan_api_key', '');
   return new GovCmsCkanClient($base_url, $api_key);
 }
+
+/**
+ * Helper to return a new instance of the CKAN DataSet parser.
+ */
+function govcms_ckan_dataset_parser() {
+  module_load_include('inc', 'govcms_ckan', 'src/GovCmsCkanDatasetParser');
+  return new GovCmsCkanDatasetParser();
+}
