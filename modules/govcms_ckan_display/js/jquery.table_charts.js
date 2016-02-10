@@ -391,7 +391,7 @@
     };
 
     // Add X axis labels.
-    if (settings.xLabels.length) {
+    if (settings.xLabels.length > 1) {
       settings.data.x = 'x';
       settings.data.columns.push(settings.xLabels);
       // this needed to load string x value
