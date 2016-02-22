@@ -52,7 +52,7 @@ function govcms_ckan_settings_form_validate($form, &$form_state) {
     $form_state['values']['govcms_ckan_api_key']);
 
   // Test the connection using action/package_list resource.
-  $response_code = $client->testConnection('action/package_list', array('limit' => 1));
+  $response_code = $client->testConnection('action/dashboard_activity_list', array('limit' => 1));
 
   // If we don't get a 200 (success), we have problems connecting.
   if ($response_code != 200) {
