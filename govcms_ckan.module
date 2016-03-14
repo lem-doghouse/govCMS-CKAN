@@ -11,7 +11,7 @@
 define('GOVCMS_CKAN_CONFIG_PATH', 'admin/config/services/govcms-ckan');
 
 /**
- * Implements hook_ctools_plugin_directory.
+ * Implements hook_ctools_plugin_directory().
  *
  * @param $module
  * The module providing the plugin.
