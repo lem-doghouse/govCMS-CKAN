@@ -1,0 +1,11 @@
+name = Media: GovCMS CKAN
+description = Adds CKAN Graph datasets as a supported media provider.
+package = Media
+core = 7.x
+
+dependencies[] = govcms_ckan
+dependencies[] = govcms_ckan_display
+dependencies[] = media_internet
+
+files[] = includes/MediaGovCmsCkanStreamWrapper.inc
+files[] = includes/MediaInternetGovCmsCkanHandler.inc
