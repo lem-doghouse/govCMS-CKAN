@@ -12,16 +12,9 @@ define('GOVCMS_CKAN_CONFIG_PATH', 'admin/config/services/govcms-ckan');
 
 /**
  * Implements hook_ctools_plugin_directory().
- *
- * @param $module
- * The module providing the plugin.
- * @param $plugin
- * The plugin name.
- * @return string
- * A relative path to the location of the plugin directory.
  */
 function govcms_ckan_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'govcms_ckan' && in_array($plugin, array_keys(govcms_ckan_ctools_plugin_type())) ) {
+  if ($module == 'govcms_ckan' && in_array($plugin, array_keys(govcms_ckan_ctools_plugin_type()))) {
     return 'plugins/' . $plugin;
   }
 }
@@ -282,9 +275,6 @@ function govcms_ckan_field_formatter_view($entity_type, $entity, $field, $instan
 
 /**
  * Implements hook_ctools_plugin_type().
- *
- * @return array
- * An array representing the plugin settings.
  */
 function govcms_ckan_ctools_plugin_type() {
   return array(
@@ -292,27 +282,26 @@ function govcms_ckan_ctools_plugin_type() {
       'label' => 'Data visualisation',
       'use hooks' => FALSE,
       'process' => 'govcms_ckan_process_plugin',
-      'load themes' => TRUE
-    )
+      'load themes' => TRUE,
+    ),
   );
 }
 
 /**
  * Define callbacks for plugins.
  *
- * @param $plugin
- * The current plugin
- * @param $info
- * The fully processed result of hook_ctools_plugin_api_info().
+ * @param array $plugin
+ *   The current plugin.
+ * @param array $info
+ *   The fully processed result of hook_ctools_plugin_api_info().
  */
 function govcms_ckan_process_plugin(&$plugin, $info) {
-
-  // Add a view function
+  // Add a view function.
   if (!isset($plugin['view'])) {
     $plugin['view'] = $plugin['module'] . '_' . $plugin['name'] . '_view';
   }
 
-  // Add a configuration form function
+  // Add a configuration form function.
   if (!isset($plugin['configure'])) {
     $plugin['configure'] = $plugin['module'] . '_' . $plugin['name'] . '_configure';
   }
@@ -321,7 +310,9 @@ function govcms_ckan_process_plugin(&$plugin, $info) {
 /**
  * Helper function to retrieve all visualisation plugins.
  *
- * @return mixed
+ * @return array
+ *   An array of information arrays about the plugins received. The contents
+ *   of the array are specific to the plugin.
  */
 function govcms_ckan_get_all_plugins() {
   return ctools_get_plugins('govcms_ckan', 'visualisation');
@@ -330,9 +321,12 @@ function govcms_ckan_get_all_plugins() {
 /**
  * Helper function to return a specfic visualisation plugin.
  *
- * @param $name
- * The name of the visualisation plugin to return.
- * @return mixed
+ * @param string $name
+ *   The name of the visualisation plugin to return.
+ *
+ * @return array
+ *   An array of information arrays about the plugins received. The contents
+ *   of the array are specific to the plugin.
  */
 function govcms_ckan_get_plugin($name) {
   return ctools_get_plugins('govcms_ckan', 'visualisation', $name);
