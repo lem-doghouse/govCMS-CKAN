@@ -4,6 +4,9 @@
  * Media integration for govCMS CKAN datasets.
  */
 
+// Load all CKAN file formatters.
+require_once dirname(__FILE__) . '/includes/govcms_ckan_media.formatters.inc';
+
 /**
  * Implements hook_media_internet_providers().
  */
@@ -30,18 +33,21 @@ function govcms_ckan_media_stream_wrappers() {
 }
 
 /**
- * Implements hook_file_default_types().
+ * Implements hook_file_default_types_alter().
+ *
+ * As this is defining a new file type it would be preferable to use
+ * hook_file_default_types() but it does not seem to work so using alter.
+ *
+ * @todo Investigate why hook_file_default_types() doesn't work.
  */
-function govcms_ckan_media_file_default_types() {
-  return array(
-    'ckan' => (object) array(
-      'api_version' => 1,
-      'type' => 'ckan',
-      'label' => t('CKAN Dataset'),
-      'description' => t("A <em>CKAN Dataset</em> is a dataset parsed and rendered as a table or graph."),
-      'mimetypes' => array(
-        'other/ckan',
-      ),
+function govcms_ckan_media_file_default_types_alter(&$types) {
+  $types['ckan'] = (object) array(
+    'api_version' => 1,
+    'type' => 'ckan',
+    'label' => t('CKAN Dataset'),
+    'description' => t("A <em>CKAN Dataset</em> is a dataset parsed and rendered as a table or graph."),
+    'mimetypes' => array(
+      'other/ckan',
     ),
   );
 }
