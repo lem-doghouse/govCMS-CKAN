@@ -75,7 +75,7 @@ class MediaInternetGovCmsCkanHandler extends MediaInternetBaseHandler {
     $uri = $this->parse($this->embedCode);
     $file = file_uri_to_object($uri, TRUE);
 
-    // Try to default the file name to the video's title.
+    // Try to default the file name to the resource's title.
     if (empty($file->fid) && $info = $this->getResource($uri)) {
       $file->filename = truncate_utf8($info->name, 255);
     }
